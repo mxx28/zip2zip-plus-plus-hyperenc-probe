@@ -1,0 +1,214 @@
+<title>v0.52 (no-residual) hyper-token probe: output reads the head, input rises toward the tail</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --paper:#FBFAFC; --panel:#FFFFFF; --ink:#191B22; --ink-soft:#4B4F5C; --ink-faint:#7E8494;
+    --line:#E7E6ED; --line-strong:#D2D1DC; --input:#3F52C4; --output:#C1701A; --zero:#B9B7C4;
+    --flag:#8A5100; --flag-bg:#FBF0DC; --flag-line:#E9CD9C;
+    --yes:#2E7D57; --no:#B3452F; --yes-bg:#E9F4EE; --no-bg:#FAECEA;
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#131319; --panel:#1B1C24; --ink:#EDEDF2; --ink-soft:#B5B8C5; --ink-faint:#868A99;
+    --line:#2A2B36; --line-strong:#3A3B49; --input:#8B98F1; --output:#E6A24F; --zero:#565869;
+    --flag:#E9B764; --flag-bg:#2A2110; --flag-line:#4A3A17;
+    --yes:#5FC08C; --no:#E8907A; --yes-bg:#16281F; --no-bg:#2A1713; }}
+  :root[data-theme="light"]{
+    --paper:#FBFAFC; --panel:#FFFFFF; --ink:#191B22; --ink-soft:#4B4F5C; --ink-faint:#7E8494;
+    --line:#E7E6ED; --line-strong:#D2D1DC; --input:#3F52C4; --output:#C1701A; --zero:#B9B7C4;
+    --flag:#8A5100; --flag-bg:#FBF0DC; --flag-line:#E9CD9C;
+    --yes:#2E7D57; --no:#B3452F; --yes-bg:#E9F4EE; --no-bg:#FAECEA; }
+  :root[data-theme="dark"]{
+    --paper:#131319; --panel:#1B1C24; --ink:#EDEDF2; --ink-soft:#B5B8C5; --ink-faint:#868A99;
+    --line:#2A2B36; --line-strong:#3A3B49; --input:#8B98F1; --output:#E6A24F; --zero:#565869;
+    --flag:#E9B764; --flag-bg:#2A2110; --flag-line:#4A3A17;
+    --yes:#5FC08C; --no:#E8907A; --yes-bg:#16281F; --no-bg:#2A1713; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.62;font-size:16px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:840px;margin:0 auto;padding:56px 24px 100px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:31px;line-height:1.22;margin:0 0 14px;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:54px 0 6px;letter-spacing:-.01em;text-wrap:balance}
+  h2 .n{font-family:var(--mono);font-size:14px;color:var(--input);font-weight:400;margin-right:10px}
+  h3{font-size:15px;font-weight:700;margin:22px 0 6px}
+  p{margin:12px 0;color:var(--ink-soft)} .lead{font-size:18px;color:var(--ink);line-height:1.55}
+  strong{color:var(--ink);font-weight:650}
+  code{font-family:var(--mono);font-size:.86em;background:var(--line);padding:1px 5px;border-radius:4px;color:var(--ink)}
+  .meta{font-family:var(--mono);font-size:12px;color:var(--ink-faint);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:22px 0 0;display:flex;flex-wrap:wrap;gap:6px 22px}
+  .kbd{font-family:var(--mono);color:var(--input);font-weight:600} .kbd.o{color:var(--output);font-weight:600}
+  .steps{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0;font-family:var(--mono);font-size:12px}
+  .steps span{background:var(--line);border-radius:20px;padding:5px 13px;color:var(--ink-soft)}
+  .steps b{color:var(--ink)}
+  .note{background:var(--v52bg,rgba(63,82,196,.05));border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:18px 0 0;font-size:14px;color:var(--ink-soft)}
+  .note b{color:var(--ink)}
+
+  .verdict{margin:22px 0 8px;background:var(--flag-bg);border:1px solid var(--flag-line);border-radius:14px;padding:22px 24px}
+  .verdict .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--flag);font-weight:700;margin:0 0 10px}
+  .verdict .big{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.42;color:var(--ink);margin:0}
+  .verdict p.sub{color:var(--ink);margin:12px 0 0;font-size:15.5px}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;color:var(--ink-soft);margin:0 0 14px;font-family:var(--mono)}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .sw.i{background:var(--input)} .sw.o{background:var(--output)}
+  .cap{font-size:13.5px;color:var(--ink-faint);margin:12px 2px 0;line-height:1.55}
+
+  .grp{margin:12px 0}
+  .grp .gl{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin:0 0 5px}
+  .pair{display:grid;grid-template-columns:132px 1fr;align-items:center;gap:12px;margin:6px 0}
+  .pair .p{font-family:var(--mono);font-size:11px;color:var(--ink-faint);text-align:right}
+  .track{position:relative;height:20px;background:var(--line);border-radius:4px}
+  .fill{position:absolute;top:0;bottom:0;border-radius:4px}
+  .fill.i{background:var(--input)} .fill.o{background:var(--output)}
+  .val{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:11.5px;color:#fff;right:7px;font-variant-numeric:tabular-nums}
+  .val.out{color:var(--ink-soft);right:auto}
+  .axis{font-family:var(--mono);font-size:11px;color:var(--ink-faint);display:flex;justify-content:space-between;margin-top:8px;border-top:1px solid var(--line);padding-top:5px}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+  td.num{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+  .piece{font-family:var(--mono);background:var(--line);padding:1px 6px;border-radius:4px;font-size:12.5px}
+  .big-i{color:var(--input);font-weight:700} .big-o{color:var(--output);font-weight:700} .lo{color:var(--ink-faint)} .neg{color:var(--no)}
+
+  .take{border-left:3px solid var(--input);padding:2px 0 2px 16px;margin:16px 0;color:var(--ink)}
+  .take.o{border-left-color:var(--output)}
+  .judge{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-radius:11px;margin:10px 0}
+  .judge.y{background:var(--yes-bg)} .judge.n{background:var(--no-bg)}
+  .judge .m{font-family:var(--mono);font-weight:700;font-size:13px;flex:none;padding-top:1px}
+  .judge.y .m{color:var(--yes)} .judge.n .m{color:var(--no)} .judge p{margin:0;color:var(--ink);font-size:15px}
+  ul{color:var(--ink-soft);padding-left:22px} li{margin:7px 0}
+  .foot{margin-top:56px;border-top:1px solid var(--line);padding-top:20px;font-size:13px;color:var(--ink-faint)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">zip2zip-core · v0.52 (no-residual) weight probe · 2026-07-24</p>
+  <h1>Inside a v0.52 hyper-token's vector: the output encoder reads the head, the input encoder rises toward the tail</h1>
+  <p class="lead">Question: for the <strong>no-residual</strong> v0.52 model, which base token does a hyper-token's embedding resemble, and do the output (scoring) and input (embedding) encoders divide the labor? Same four steps as before, on v0.52's own numbers.</p>
+
+  <div class="steps">
+    <span><b>①</b> Raw similarity to each base token (no ruler removed)</span>
+    <span><b>②</b> Prove a shared "ruler" vector exists</span>
+    <span><b>③</b> Remove the ruler, re-measure</span>
+    <span><b>④</b> Causal minimal pairs: change head vs tail</span>
+  </div>
+
+  <div class="note"><b>What "no-residual" means here.</b> v0.52 sets <code>no_encoder_residual</code>, so the final vector is the encoder's own output <em>without</em> adding the first base token back (<code>E = encoder_out</code>, not <code>tok_emb[t1] + encoder_out</code>). So what you see below is the <b>learned encoder behavior directly</b> — nothing is propped up by a residual. Everything else (untied / flat / 2-layer / 3072 / digit-safe / step 8000) matches v0.5.</div>
+
+  <div class="verdict">
+    <p class="tag">Bottom line (v0.52)</p>
+    <p class="big"><span class="kbd o">OUTPUT = prefix-sensitive (reads the head)</span>: changing the first token dominates; and here it shows a <strong>graded decay</strong> (t1 &gt; t2 &gt; t3).<br>
+      <span class="kbd">INPUT = distributed, weighted toward the tail</span>: it draws on all base tokens but its similarity <strong>rises toward the last token</strong>.</p>
+    <p class="sub">Because v0.52 has no residual, the split comes purely from the learned encoders. Output still reads the head (change-first 3.3× change-last at K=4), but milder and more graded than the residual model; input, with no residual propping up the first token, tilts clearly toward the tail.</p>
+  </div>
+
+  <h2><span class="n">①</span>Raw: similarity of the embedding to each base token (nothing removed)</h2>
+  <p>The naive measurement — mean cosine of the final embedding (here = encoder output, no residual) with each base token's embedding:</p>
+  <table>
+    <thead><tr><th></th><th class="num">pos1</th><th class="num">pos2</th><th class="num">pos3</th><th class="num">pos4</th></tr></thead>
+    <tbody>
+      <tr><td><span class="big-i">INPUT</span> K=2</td><td class="num">+0.096</td><td class="num">+0.143</td><td class="num lo">—</td><td class="num lo">—</td></tr>
+      <tr><td><span class="big-i">INPUT</span> K=3</td><td class="num">+0.050</td><td class="num">+0.071</td><td class="num">+0.113</td><td class="num lo">—</td></tr>
+      <tr><td><span class="big-i">INPUT</span> K=4</td><td class="num">+0.040</td><td class="num">+0.041</td><td class="num">+0.059</td><td class="num">+0.096</td></tr>
+      <tr><td><span class="big-o">OUTPUT</span> K=2</td><td class="num">+0.028</td><td class="num">+0.020</td><td class="num lo">—</td><td class="num lo">—</td></tr>
+      <tr><td><span class="big-o">OUTPUT</span> K=3</td><td class="num">+0.025</td><td class="num">+0.017</td><td class="num">+0.016</td><td class="num lo">—</td></tr>
+      <tr><td><span class="big-o">OUTPUT</span> K=4</td><td class="num">+0.023</td><td class="num">+0.016</td><td class="num">+0.015</td><td class="num">+0.016</td></tr>
+    </tbody>
+  </table>
+  <p class="cap"><strong>INPUT</strong>: every position positive and <strong>rising toward the tail</strong> (pos1 lowest, pos-last highest) — unlike the residual model's U-shape, because no residual lifts the head. <strong>OUTPUT</strong>: similarity to every base token is ≈0 (all small-positive) — the vector points somewhere unrelated to any of its words. Step ② explains why.</p>
+
+  <h2><span class="n">②</span>Why output resembles none of its words: a shared "ruler" vector exists</h2>
+  <p>Nearly all of each output vector is a <strong>direction shared by every hyper-token</strong> (a ruler) that dilutes the raw cosine with any specific base token to ≈0. Provable, with two controls:</p>
+  <div class="panel">
+    <table>
+      <thead><tr><th></th><th class="num">cosine with global mean</th><th class="num">pairwise cosine</th><th class="num">mean as % of length</th></tr></thead>
+      <tbody>
+        <tr><td><span class="big-o">OUTPUT</span> hyper-tokens</td><td class="num big-o">0.999 (min 0.998)</td><td class="num">0.997</td><td class="num">99.7%</td></tr>
+        <tr><td>OUTPUT ordinary tokens (control)</td><td class="num lo">0.27</td><td class="num lo">0.07</td><td class="num">—</td></tr>
+        <tr><td>OUTPUT random-init (control)</td><td class="num lo">0.63</td><td class="num lo">—</td><td class="num">—</td></tr>
+        <tr><td><span class="big-i">INPUT</span> hyper-tokens</td><td class="num big-i">0.69</td><td class="num">0.47</td><td class="num">47%</td></tr>
+        <tr><td>INPUT ordinary tokens (control)</td><td class="num lo">0.13</td><td class="num lo">0.01</td><td class="num">—</td></tr>
+      </tbody>
+    </table>
+    <p class="cap"><strong>Decisive on OUTPUT</strong>: each output hyper-token's cosine with the global mean is 0.999 (even the least-aligned is 0.998) — they are almost <strong>the same vector</strong>, differing by ~0.3%. Hyper-token-specific (ordinary tokens 0.27) and learned (random-init 0.63). Note this collapse is <strong>as extreme as in the residual model</strong> — removing the residual did not change it, so the ruler is a property of the output <strong>encoder</strong>. INPUT is moderate (47%); most of each vector is its own content.</p>
+  </div>
+
+  <h2><span class="n">③</span>After removing the ruler: similarity to each base token</h2>
+  <p>Subtract the ruler (global mean); what remains is the "which merge is this" part. Re-measure cosine with each position:</p>
+  <table>
+    <thead><tr><th></th><th class="num">pos1</th><th class="num">pos2</th><th class="num">pos3</th><th class="num">pos4</th></tr></thead>
+    <tbody>
+      <tr><td><span class="big-o">OUTPUT</span> K=2</td><td class="num big-o">0.323</td><td class="num lo">0.145</td><td class="num lo">—</td><td class="num lo">—</td></tr>
+      <tr><td><span class="big-o">OUTPUT</span> K=3</td><td class="num big-o">0.274</td><td class="num">0.115</td><td class="num lo">0.083</td><td class="num lo">—</td></tr>
+      <tr><td><span class="big-o">OUTPUT</span> K=4</td><td class="num big-o">0.235</td><td class="num">0.081</td><td class="num lo">0.067</td><td class="num lo">0.067</td></tr>
+      <tr><td><span class="big-i">INPUT</span> K=2</td><td class="num lo">0.077</td><td class="num big-i">0.121</td><td class="num lo">—</td><td class="num lo">—</td></tr>
+      <tr><td><span class="big-i">INPUT</span> K=3</td><td class="num lo">0.070</td><td class="num">0.101</td><td class="num big-i">0.166</td><td class="num lo">—</td></tr>
+      <tr><td><span class="big-i">INPUT</span> K=4</td><td class="num lo">0.057</td><td class="num">0.059</td><td class="num">0.086</td><td class="num big-i">0.143</td></tr>
+    </tbody>
+  </table>
+  <p class="cap"><strong>OUTPUT</strong>: highest on the first token, then <strong>tapering</strong> — K=3 gives 0.274 &gt; 0.115 &gt; 0.083, a genuine <strong>graded prefix decay</strong> (the residual model was a pure spike; without the residual the encoder's own graded prefix shows). <strong>INPUT</strong>: <strong>monotonically increasing toward the tail</strong> (0.057 → 0.059 → 0.086 → 0.143) — distributed but tail-weighted.</p>
+
+  <h2><span class="n">④</span>Causal minimal pairs: change one token — head or tail?</h2>
+  <p>Take a real hyper-token, replace exactly one position, measure how much the embedding moves (cosine distance after removing the ruler). K=4:</p>
+  <div class="panel">
+    <div class="legend"><span><span class="sw o"></span>OUTPUT</span><span><span class="sw i"></span>INPUT</span></div>
+    <div class="grp"><div class="gl">OUTPUT · change first vs change last</div>
+      <div class="pair"><span class="p">change first</span><div class="track"><div class="fill o" style="width:59%"></div><span class="val">0.472</span></div></div>
+      <div class="pair"><span class="p">change last</span><div class="track"><div class="fill o" style="width:18%"></div><span class="val out" style="left:calc(18% + 7px)">0.142</span></div></div></div>
+    <div class="grp"><div class="gl">INPUT · change first vs change last</div>
+      <div class="pair"><span class="p">change first</span><div class="track"><div class="fill i" style="width:16%"></div><span class="val out" style="left:calc(16% + 7px)">0.128</span></div></div>
+      <div class="pair"><span class="p">change last</span><div class="track"><div class="fill i" style="width:48%"></div><span class="val">0.388</span></div></div></div>
+    <div class="axis"><span>0 (no change)</span><span>0.8</span></div>
+    <p class="cap"><strong>OUTPUT</strong>: changing the first token moves it far more (0.47 vs 0.14) — <strong>prefix-dominated</strong>. <strong>INPUT</strong>: changing the last token moves it more (0.39 vs 0.13) — <strong>tail-weighted</strong>. Clean mirror.</p>
+  </div>
+  <h3>Ratio of "change-first / change-last" impact, by length K</h3>
+  <table>
+    <thead><tr><th></th><th class="num">K=2</th><th class="num">K=3</th><th class="num">K=4</th></tr></thead>
+    <tbody>
+      <tr><td><span class="big-o">OUTPUT</span> first / last</td><td class="num">1.8×</td><td class="num">3.2×</td><td class="num big-o">3.3×</td></tr>
+      <tr><td><span class="big-i">INPUT</span> first / last</td><td class="num">0.77</td><td class="num">0.42</td><td class="num big-i">0.33</td></tr>
+    </tbody>
+  </table>
+  <p class="cap">OUTPUT &gt;1 and grows with length (prefix ever more dominant); INPUT &lt;1 and falls with length (tail ever more dominant). The two encoders pull in opposite directions.</p>
+
+  <h2><span class="n">⑤</span>Nested example "It is a dog"</h2>
+  <p>Shared prefix, growing length: H2=<span class="piece">It·is</span> → H3=<span class="piece">It·is·a</span> → H4=<span class="piece">It·is·a·dog</span>. Similarity after removing the ruler:</p>
+  <div class="panel">
+    <div class="legend"><span><span class="sw o"></span>OUTPUT</span><span><span class="sw i"></span>INPUT</span></div>
+    <div class="grp"><div class="gl">OUTPUT: stays alike as it grows (shared head "It")</div>
+      <div class="pair"><span class="p">cos(H2,H3)</span><div class="track"><div class="fill o" style="width:91%"></div><span class="val">0.91</span></div></div>
+      <div class="pair"><span class="p">cos(H2,H4)</span><div class="track"><div class="fill o" style="width:73%"></div><span class="val">0.73</span></div></div></div>
+    <div class="grp"><div class="gl">INPUT: diverges as it grows (tail keeps changing)</div>
+      <div class="pair"><span class="p">cos(H2,H3)</span><div class="track"><div class="fill i" style="width:89%"></div><span class="val">0.89</span></div></div>
+      <div class="pair"><span class="p">cos(H2,H4)</span><div class="track"><div class="fill i" style="width:44%"></div><span class="val">0.44</span></div></div></div>
+    <div class="axis"><span>0</span><span>1 (identical)</span></div>
+    <p class="cap">To <strong>output</strong>, the growing prefixes stay similar (0.73) — it keys on the shared head. To <strong>input</strong>, each added word pulls it away (down to 0.44) — it reflects the whole lengthening merge, tracking the new tail.</p>
+  </div>
+
+  <h2><span class="n">⑥</span>Why this makes sense</h2>
+  <div class="take o"><b>OUTPUT reads the head.</b> It scores "should I emit this whole merge H", <code>logit = hidden · E_out(H)</code>. Emitting H means committing to <b>start with its first token</b>, so the head defines the candidate; later tokens taper off in influence.</div>
+  <div class="take"><b>INPUT rises toward the tail.</b> It replaces the whole merge H in the decoder stream, which must continue from H's <b>last token</b> — so the ending carries the most weight for what comes next, while it still draws on the full span.</div>
+
+  <h2><span class="n">⑦</span>Verdict</h2>
+  <div class="judge y"><span class="m">✓</span><p><strong>output = prefix form: confirmed, and graded.</strong> Changing the first token affects the embedding 1.8–3.3× more than the last; the per-position signal tapers (t1 &gt; t2 &gt; t3). Without the residual, this is entirely the learned encoder.</p></div>
+  <div class="judge y"><span class="m">✓</span><p><strong>input = holistic, tail-weighted.</strong> It uses all base tokens but similarity and sensitivity both rise toward the last token (ratio 0.33 at K=4). With no residual propping up the head, the tail lean is cleaner than in the residual model.</p></div>
+  <div class="judge n"><span class="m">!</span><p><strong>Output still collapses (99.7% shared ruler).</strong> Removing the residual did not fix it — the collapse lives in the output encoder itself, and its per-merge discriminative signal is small. Likely under-utilization (hyper-tokens are a minority of output positions → weak gradient), worth checking directly.</p></div>
+
+  <h2><span class="n">⑧</span>Implications</h2>
+  <ul>
+    <li>Even without the residual, the output side is dominated by a shared ruler and keyed on the first token — putting a <strong>hierarchical</strong> encoder there still targets a role that reads mostly the head. Consistent with the observed lack of clear gain from hierarchical.</li>
+    <li>The input side genuinely uses the full sequence and leans toward the tail — the better-motivated place for a hierarchical / sequential encoder if trying one.</li>
+    <li>Higher priority: diagnose the output collapse (log loss / grad-norm separately for base-token vs hyper-token output positions).</li>
+  </ul>
+
+  <h2><span class="n">⑨</span>Method &amp; limitations</h2>
+  <ul>
+    <li>Measured on v0.52's <strong>final vector = encoder output</strong> (no residual, as the model uses it). Step ① uses raw cosine; ②③④ compare after subtracting the proven shared ruler.</li>
+    <li>Controls: ordinary-token baseline and a random-init encoder confirm the findings are learned.</li>
+    <li>Single checkpoint (v0.52, 8000 steps), single corpus. Strong evidence, not a final verdict.</li>
+  </ul>
+
+  <p class="foot">Repro: <code>/dlabscratch1/xinma/v05probe/</code> (<code>probe_compare.py</code>, <code>results_compare.json</code>; v0.52 uses residual=False as its real final vector; <code>enc_lib.py</code> validated bit-exact vs <code>zip2zip_core.model.HyperEncoder</code>, max|Δ|=0). Checkpoint: <code>xinxian-z2z-phi35-4B-noresidual-1BData-v0.52-Zip2zipCore/step_8000</code>.</p>
+</div>

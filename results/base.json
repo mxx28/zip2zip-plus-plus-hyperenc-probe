@@ -1,0 +1,37 @@
+{
+  "n_triples": 29612,
+  "tok_emb (input space)": {
+    "ruler_cos_mean": 0.0897,
+    "first_raw": 0.0931,
+    "last_raw": 0.1191,
+    "first_demean": 0.0915,
+    "last_demean": 0.1175,
+    "minpair_raw": {
+      "first": 0.914,
+      "last": 0.9259,
+      "ratio": 0.99
+    },
+    "minpair_demean": {
+      "first": 0.9208,
+      "last": 0.9326,
+      "ratio": 0.99
+    }
+  },
+  "lm_head (output space)": {
+    "ruler_cos_mean": 0.2297,
+    "first_raw": 0.2469,
+    "last_raw": 0.1191,
+    "first_demean": 0.2263,
+    "last_demean": 0.0864,
+    "minpair_raw": {
+      "first": 0.8499,
+      "last": 0.8086,
+      "ratio": 1.05
+    },
+    "minpair_demean": {
+      "first": 0.8957,
+      "last": 0.8519,
+      "ratio": 1.05
+    }
+  }
+}

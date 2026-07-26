@@ -1,0 +1,188 @@
+<title>hyper-token 向量拆解：v0.5 vs v0.52（去 residual）对比</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --paper:#FBFAFC; --panel:#FFFFFF; --ink:#191B22; --ink-soft:#4B4F5C; --ink-faint:#7E8494;
+    --line:#E7E6ED; --line-strong:#D2D1DC; --input:#3F52C4; --output:#C1701A; --zero:#B9B7C4;
+    --flag:#8A5100; --flag-bg:#FBF0DC; --flag-line:#E9CD9C;
+    --yes:#2E7D57; --no:#B3452F; --yes-bg:#E9F4EE; --no-bg:#FAECEA;
+    --v5bg:transparent; --v52bg:rgba(63,82,196,.045);
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#131319; --panel:#1B1C24; --ink:#EDEDF2; --ink-soft:#B5B8C5; --ink-faint:#868A99;
+    --line:#2A2B36; --line-strong:#3A3B49; --input:#8B98F1; --output:#E6A24F; --zero:#565869;
+    --flag:#E9B764; --flag-bg:#2A2110; --flag-line:#4A3A17;
+    --yes:#5FC08C; --no:#E8907A; --yes-bg:#16281F; --no-bg:#2A1713; --v52bg:rgba(139,152,240,.07); }}
+  :root[data-theme="light"]{
+    --paper:#FBFAFC; --panel:#FFFFFF; --ink:#191B22; --ink-soft:#4B4F5C; --ink-faint:#7E8494;
+    --line:#E7E6ED; --line-strong:#D2D1DC; --input:#3F52C4; --output:#C1701A; --zero:#B9B7C4;
+    --flag:#8A5100; --flag-bg:#FBF0DC; --flag-line:#E9CD9C;
+    --yes:#2E7D57; --no:#B3452F; --yes-bg:#E9F4EE; --no-bg:#FAECEA; --v52bg:rgba(63,82,196,.045); }
+  :root[data-theme="dark"]{
+    --paper:#131319; --panel:#1B1C24; --ink:#EDEDF2; --ink-soft:#B5B8C5; --ink-faint:#868A99;
+    --line:#2A2B36; --line-strong:#3A3B49; --input:#8B98F1; --output:#E6A24F; --zero:#565869;
+    --flag:#E9B764; --flag-bg:#2A2110; --flag-line:#4A3A17;
+    --yes:#5FC08C; --no:#E8907A; --yes-bg:#16281F; --no-bg:#2A1713; --v52bg:rgba(139,152,240,.07); }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.62;font-size:16px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:860px;margin:0 auto;padding:56px 24px 100px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 14px}
+  h1{font-family:var(--serif);font-weight:600;font-size:31px;line-height:1.22;margin:0 0 14px;letter-spacing:-.01em;text-wrap:balance}
+  h2{font-family:var(--serif);font-weight:600;font-size:22px;margin:52px 0 6px;letter-spacing:-.01em;text-wrap:balance}
+  h2 .n{font-family:var(--mono);font-size:14px;color:var(--input);font-weight:400;margin-right:10px}
+  h3{font-size:14.5px;font-weight:700;margin:20px 0 6px;color:var(--ink-soft)}
+  p{margin:12px 0;color:var(--ink-soft)} .lead{font-size:17.5px;color:var(--ink);line-height:1.55}
+  strong{color:var(--ink);font-weight:650}
+  code{font-family:var(--mono);font-size:.86em;background:var(--line);padding:1px 5px;border-radius:4px;color:var(--ink)}
+  .meta{font-family:var(--mono);font-size:12px;color:var(--ink-faint);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:22px 0 0;display:flex;flex-wrap:wrap;gap:6px 22px}
+  .kbd{font-family:var(--mono);color:var(--input);font-weight:600} .kbd.o{color:var(--output);font-weight:600}
+  .models{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 0;font-size:13px}
+  .models .m{border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-family:var(--mono)}
+  .models .m b{color:var(--ink)} .models .m span{color:var(--ink-faint)}
+
+  .verdict{margin:24px 0 8px;background:var(--flag-bg);border:1px solid var(--flag-line);border-radius:14px;padding:22px 24px}
+  .verdict .tag{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--flag);font-weight:700;margin:0 0 10px}
+  .verdict .big{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.44;color:var(--ink);margin:0}
+  .verdict p.sub{color:var(--ink);margin:12px 0 0;font-size:15px}
+
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:16px 0}
+  .cap{font-size:13.5px;color:var(--ink-faint);margin:12px 2px 0;line-height:1.55}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-faint);font-weight:600}
+  td.num{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+  tr.v52 td{background:var(--v52bg)}
+  .tag5{font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+  .tag52{font-family:var(--mono);font-size:11px;color:var(--input);font-weight:700}
+  .piece{font-family:var(--mono);background:var(--line);padding:1px 6px;border-radius:4px;font-size:12px}
+  .big-i{color:var(--input);font-weight:700} .big-o{color:var(--output);font-weight:700} .lo{color:var(--ink-faint)} .neg{color:var(--no)}
+
+  .take{border-left:3px solid var(--input);padding:2px 0 2px 16px;margin:14px 0;color:var(--ink)}
+  .take.o{border-left-color:var(--output)}
+  .delta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+  @media (max-width:640px){.delta{grid-template-columns:1fr}}
+  .dcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .dcard .h{font-family:var(--mono);font-size:12px;font-weight:700;margin:0 0 6px}
+  .dcard.i .h{color:var(--input)} .dcard.o .h{color:var(--output)} .dcard p{margin:5px 0;font-size:14px}
+  .judge{display:flex;gap:10px;align-items:flex-start;padding:13px 16px;border-radius:11px;margin:9px 0}
+  .judge.y{background:var(--yes-bg)} .judge.n{background:var(--no-bg)}
+  .judge .m{font-family:var(--mono);font-weight:700;font-size:13px;flex:none;padding-top:1px}
+  .judge.y .m{color:var(--yes)} .judge.n .m{color:var(--no)} .judge p{margin:0;color:var(--ink);font-size:14.5px}
+  ul{color:var(--ink-soft);padding-left:22px} li{margin:6px 0}
+  .foot{margin-top:52px;border-top:1px solid var(--line);padding-top:20px;font-size:13px;color:var(--ink-faint)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">zip2zip-core · hyper-encoder 权重拆解 · v0.5 vs v0.52 · 2026-07-24</p>
+  <h1>hyper-token 向量拆解：v0.5（带 residual）对比 v0.52（去掉 residual）</h1>
+  <p class="lead">同一套方法(①原始相似度 ②证明共享标尺 ③减标尺后相似度 ④因果最小对 ⑤嵌套)跑在两个模型上，每个 section 并列，直接看去掉 residual 带来的差异。</p>
+
+  <div class="models">
+    <div class="m"><b>v0.5</b> <span>untied · flat · <strong style="color:var(--ink)">有 residual</strong>（E = tok_emb[t1] + encoder_out）</span></div>
+    <div class="m"><b>v0.52</b> <span>untied · flat · <strong style="color:var(--ink)">无 residual</strong>（E = encoder_out）</span></div>
+  </div>
+  <div class="meta">
+    <span>唯一变量：no_encoder_residual</span>
+    <span>其余相同：untied / flat / 2 层 / 3072 / digitsafe / step_8000</span>
+    <span>前向复现 max|Δ|=0（两模型均校验）</span>
+    <span>真实英文 n-gram K=2/3/4</span>
+  </div>
+
+  <div class="verdict">
+    <p class="tag">对比结论</p>
+    <p class="big">核心分工在两个模型里都成立：<span class="kbd o">output 认开头（前缀）</span>、<span class="kbd">input 更均匀、偏后</span>。<br>
+      去掉 residual 后：<strong>output 的前缀主导变弱但仍在</strong>（改首/改尾比 9.2× → 3.3×），且露出更清楚的<strong>递推衰减</strong>；<strong>input 从「U 型」变成「向末尾单调递增」</strong>。</p>
+    <p class="sub">这说明：v0.5 里 output 极端偏第一个词，<strong>一部分是 residual（把 t1 加回去）撑起来的，一部分是 encoder 本身学到的</strong>——去掉 residual 后前缀性没消失，只是没那么夸张。而 output 的<strong>塌缩（共享标尺 99.7%）与 residual 无关</strong>，两模型一样。</p>
+  </div>
+
+  <h2><span class="n">①</span>不减标尺：embedding 和每个位置 base token 的原始相似度</h2>
+  <p>直接拿最终向量和每个位置 base token 求平均余弦，什么都不处理。</p>
+  <div class="panel">
+    <h3>OUTPUT（对 lm_head）</h3>
+    <table><thead><tr><th>模型 / K</th><th class="num">pos1</th><th class="num">pos2</th><th class="num">pos3</th><th class="num">pos4</th></tr></thead><tbody>
+      <tr><td><span class="tag5">v0.5</span> K=4</td><td class="num">+0.023</td><td class="num neg">−0.021</td><td class="num neg">−0.021</td><td class="num neg">−0.022</td></tr>
+      <tr class="v52"><td><span class="tag52">v0.52</span> K=4</td><td class="num">+0.023</td><td class="num">+0.016</td><td class="num">+0.015</td><td class="num">+0.016</td></tr>
+    </tbody></table>
+    <h3>INPUT（对 tok_emb）</h3>
+    <table><thead><tr><th>模型 / K</th><th class="num">pos1</th><th class="num">pos2</th><th class="num">pos3</th><th class="num">pos4</th></tr></thead><tbody>
+      <tr><td><span class="tag5">v0.5</span> K=4</td><td class="num">+0.099</td><td class="num">+0.037</td><td class="num">+0.049</td><td class="num">+0.088</td></tr>
+      <tr class="v52"><td><span class="tag52">v0.52</span> K=4</td><td class="num">+0.040</td><td class="num">+0.041</td><td class="num">+0.059</td><td class="num">+0.096</td></tr>
+    </tbody></table>
+    <p class="cap">两模型的 output 原始余弦都≈0（被共享标尺稀释）；差别在 v0.5 尾部是负的、v0.52 是小正的。INPUT：v0.5 呈 U 型(首尾高)，v0.52 <strong>去掉 residual 后头部塌下来</strong>(0.099→0.040)，变成向末尾递增——说明 v0.5 的"头高"主要是 residual 把 t1 加回来撑的。</p>
+  </div>
+
+  <h2><span class="n">②</span>共享标尺：两模型都存在，且与 residual 无关</h2>
+  <div class="panel">
+    <table><thead><tr><th></th><th class="num">与全体均值余弦</th><th class="num">任两个之间</th><th class="num">均值占长度</th></tr></thead><tbody>
+      <tr><td><span class="big-o">OUTPUT</span> <span class="tag5">v0.5</span></td><td class="num big-o">0.998</td><td class="num">0.996</td><td class="num">99.6%</td></tr>
+      <tr class="v52"><td><span class="big-o">OUTPUT</span> <span class="tag52">v0.52</span></td><td class="num big-o">0.999</td><td class="num">0.997</td><td class="num">99.7%</td></tr>
+      <tr><td><span class="big-i">INPUT</span> <span class="tag5">v0.5</span></td><td class="num big-i">0.668</td><td class="num">0.453</td><td class="num">46%</td></tr>
+      <tr class="v52"><td><span class="big-i">INPUT</span> <span class="tag52">v0.52</span></td><td class="num big-i">0.690</td><td class="num">0.471</td><td class="num">47%</td></tr>
+      <tr><td>普通 token 对照(output 空间)</td><td class="num lo">0.27</td><td class="num lo">0.07</td><td class="num lo">—</td></tr>
+    </tbody></table>
+    <p class="cap"><strong>关键：output 的极端塌缩（≈99.7%）在两个模型里几乎完全一样。</strong>去不去 residual 都不影响——这把标尺是 output <strong>encoder 本身</strong>的性质，不是 residual 造成的。INPUT 两模型都是中等(~46%)。所以后面 ③④ 都在减掉这把标尺后比较。</p>
+  </div>
+
+  <h2><span class="n">③</span>减掉标尺后：判别信号和每个位置 base token 的相似度</h2>
+  <div class="panel">
+    <h3>OUTPUT</h3>
+    <table><thead><tr><th>模型 / K</th><th class="num">pos1</th><th class="num">pos2</th><th class="num">pos3</th><th class="num">pos4</th></tr></thead><tbody>
+      <tr><td><span class="tag5">v0.5</span> K=3</td><td class="num big-o">0.750</td><td class="num lo">0.044</td><td class="num lo">0.044</td><td class="num lo">—</td></tr>
+      <tr class="v52"><td><span class="tag52">v0.52</span> K=3</td><td class="num big-o">0.274</td><td class="num">0.115</td><td class="num lo">0.083</td><td class="num lo">—</td></tr>
+      <tr><td><span class="tag5">v0.5</span> K=4</td><td class="num big-o">0.726</td><td class="num lo">0.019</td><td class="num lo">0.024</td><td class="num lo">0.038</td></tr>
+      <tr class="v52"><td><span class="tag52">v0.52</span> K=4</td><td class="num big-o">0.235</td><td class="num">0.081</td><td class="num lo">0.067</td><td class="num lo">0.067</td></tr>
+    </tbody></table>
+    <h3>INPUT</h3>
+    <table><thead><tr><th>模型 / K</th><th class="num">pos1</th><th class="num">pos2</th><th class="num">pos3</th><th class="num">pos4</th></tr></thead><tbody>
+      <tr><td><span class="tag5">v0.5</span> K=4</td><td class="num big-i">0.147</td><td class="num lo">0.051</td><td class="num">0.071</td><td class="num big-i">0.133</td></tr>
+      <tr class="v52"><td><span class="tag52">v0.52</span> K=4</td><td class="num lo">0.057</td><td class="num lo">0.059</td><td class="num">0.086</td><td class="num big-i">0.143</td></tr>
+    </tbody></table>
+    <p class="cap"><strong>OUTPUT</strong>：v0.5 是"第一个词一枝独秀(0.73)、其余≈0"的尖峰；v0.52 首位降到 0.24、后面几位升到 ~0.07，露出更清楚的 <strong>递推衰减(K=3: 0.27&gt;0.12&gt;0.08)</strong>——更接近"渐降前缀"。<br><strong>INPUT</strong>：v0.5 U 型(首尾都高)；v0.52 去掉 residual 后首位塌下来(0.147→0.057)，变成<strong>向末尾单调递增</strong>——input 的 encoder 本身其实偏后，v0.5 的"首位高"是 residual 撑的。</p>
+  </div>
+
+  <h2><span class="n">④</span>因果最小对：差一个词，差首 vs 差尾（减标尺后余弦距离）</h2>
+  <div class="panel">
+    <table><thead><tr><th>模型</th><th class="num">K=2 首/尾</th><th class="num">K=3 首/尾</th><th class="num">K=4 首/尾</th><th class="num">K=4 比值</th></tr></thead><tbody>
+      <tr><td><span class="big-o">OUTPUT</span> <span class="tag5">v0.5</span></td><td class="num">0.77 / 0.23</td><td class="num">0.75 / 0.11</td><td class="num">0.72 / 0.08</td><td class="num big-o">9.2×</td></tr>
+      <tr class="v52"><td><span class="big-o">OUTPUT</span> <span class="tag52">v0.52</span></td><td class="num">0.65 / 0.35</td><td class="num">0.57 / 0.18</td><td class="num">0.47 / 0.14</td><td class="num big-o">3.3×</td></tr>
+      <tr><td><span class="big-i">INPUT</span> <span class="tag5">v0.5</span></td><td class="num">0.15 / 0.27</td><td class="num">0.21 / 0.51</td><td class="num">0.11 / 0.35</td><td class="num big-i">0.31</td></tr>
+      <tr class="v52"><td><span class="big-i">INPUT</span> <span class="tag52">v0.52</span></td><td class="num">0.23 / 0.30</td><td class="num">0.21 / 0.51</td><td class="num">0.13 / 0.39</td><td class="num big-i">0.33</td></tr>
+    </tbody></table>
+    <p class="cap"><strong>OUTPUT</strong>：两模型改首都比改尾影响大(前缀主导)，但 v0.5 是 9.2×、v0.52 只有 3.3×——<strong>residual 把前缀性放大了约 3 倍</strong>，去掉后 encoder 自身仍偏前缀(3.3×)。<br><strong>INPUT</strong>：两模型比值都 &lt;1(改尾影响更大)、且几乎一样(0.31 vs 0.33)——<strong>input 的行为基本不受 residual 影响</strong>(因为它的 encoder_out 本来就远大于那个小 residual)。</p>
+  </div>
+
+  <h2><span class="n">⑤</span>嵌套 "It is a dog"（减标尺后余弦，越长越像吗）</h2>
+  <div class="panel">
+    <table><thead><tr><th>模型</th><th class="num">cos(H2,H3)</th><th class="num">cos(H2,H4)</th></tr></thead><tbody>
+      <tr><td><span class="big-o">OUTPUT</span> <span class="tag5">v0.5</span></td><td class="num">0.912</td><td class="num big-o">0.811</td></tr>
+      <tr class="v52"><td><span class="big-o">OUTPUT</span> <span class="tag52">v0.52</span></td><td class="num">0.909</td><td class="num big-o">0.732</td></tr>
+      <tr><td><span class="big-i">INPUT</span> <span class="tag5">v0.5</span></td><td class="num">0.875</td><td class="num big-i">0.343</td></tr>
+      <tr class="v52"><td><span class="big-i">INPUT</span> <span class="tag52">v0.52</span></td><td class="num">0.888</td><td class="num big-i">0.435</td></tr>
+    </tbody></table>
+    <p class="cap">共享前缀 "It"：<strong>output</strong> 两模型都"越长越像"(cos 高)，v0.5 更极端(0.81)因为 residual 把共享的 t1 直接加回；v0.52 稍低(0.73)但仍高。<strong>input</strong> 两模型都"越长越不像"(cos 低)，反映整个变长的合并；v0.52 略高(0.44 vs 0.34)。</p>
+  </div>
+
+  <h2><span class="n">⑥</span>去掉 residual 到底改变了什么 —— 逐项</h2>
+  <div class="delta">
+    <div class="dcard o"><p class="h">OUTPUT</p>
+      <p><b>前缀主导：变弱但仍在。</b>改首/改尾比 9.2×→3.3×。residual 把它放大了~3×，但 encoder 本身仍偏前缀。</p>
+      <p><b>递推衰减：更清楚了。</b>v0.52 出现 0.27&gt;0.12&gt;0.08 的渐降，比 v0.5 的尖峰更像"graded prefix"。</p>
+      <p><b>塌缩：没变。</b>共享标尺仍 99.7%——与 residual 无关，是 encoder 性质。</p>
+    </div>
+    <div class="dcard i"><p class="h">INPUT</p>
+      <p><b>逐位置形状：U 型 → 向末尾递增。</b>residual 原本把首位垫高造成 U 型；去掉后露出 encoder 本身偏后的趋势。</p>
+      <p><b>因果最小对：几乎不变。</b>改首/改尾比 0.31 vs 0.33——input 行为基本不吃 residual（encoder_out 本来就主导）。</p>
+      <p><b>塌缩：都中等(~46%)。</b>input 从不塌缩。</p>
+    </div>
+  </div>
+
+  <h2><span class="n">⑦</span>对假设 & 实验的判定（两模型一致）</h2>
+  <div class="judge y"><span class="m">✓</span><p><strong>output = 前缀敏感：两模型都成立。</strong>改第一个词的影响始终大于改最后一个(9.2× / 3.3×)。去掉 residual 后还更像"渐降前缀"。</p></div>
+  <div class="judge y"><span class="m">✓</span><p><strong>input = 较均匀、偏后：两模型都成立。</strong>各位置都用上、末尾略重(比值 &lt;1)，不由单一位置主导；去 residual 后偏后更明显。</p></div>
+  <div class="judge n"><span class="m">!</span><p><strong>对 v0.7/hierarchical 的启示不变。</strong>output 高度塌缩(99.7%)、且塌缩与 residual 无关——把 hierarchical 装在 output 侧,是在一个表达力没被用满的角色上加复杂度(这也和你观测到的 hierarchical 无明显增益一致)。要试更应放 input 侧，或先查 output 为何塌缩(hyper-token 输出位置少、梯度弱)。</p></div>
+
+  <p class="foot">复现：<code>/dlabscratch1/xinma/v05probe/</code>（<code>probe_compare.py</code> 同时跑两模型；v0.5 用 residual=True、v0.52 用 residual=False，各为其真实最终向量；<code>results_compare.json</code>；两模型 <code>enc_lib</code> 前向均对 <code>zip2zip_core.model.HyperEncoder</code> 逐位校验 max|Δ|=0）。v0.52 checkpoint：<code>xinxian-z2z-phi35-4B-noresidual-1BData-v0.52-Zip2zipCore/step_8000</code>。</p>
+</div>

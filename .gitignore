@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+
+# Local environments and editor files
+.venv/
+venv/
+.env
+.DS_Store
+
+# Large model artifacts kept outside normal Git history.
+weights/
+*.pt
+
+# Logs can be regenerated from probe runs.
+*.log

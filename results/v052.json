@@ -1,0 +1,177 @@
+{
+  "label": "v0.52 (untied, no-residual)",
+  "preset": "v052",
+  "residual": false,
+  "input": {
+    "ruler_cos_mean": 0.6899,
+    "ruler_cos_min": 0.3256,
+    "ruler_pairwise": 0.4791,
+    "ruler_energy": 0.4749,
+    "tok_cos_mean": 0.1253,
+    "raw_K2": [
+      0.0963,
+      0.1434
+    ],
+    "demean_K2": [
+      0.0769,
+      0.1211
+    ],
+    "raw_K3": [
+      0.0496,
+      0.0707,
+      0.1129
+    ],
+    "demean_K3": [
+      0.0696,
+      0.1011,
+      0.1655
+    ],
+    "raw_K4": [
+      0.0401,
+      0.0412,
+      0.0592,
+      0.0958
+    ],
+    "demean_K4": [
+      0.0568,
+      0.0587,
+      0.0864,
+      0.1428
+    ],
+    "minpair": {
+      "2": {
+        "demean": {
+          "first": 0.2287,
+          "last": 0.3004,
+          "ratio": 0.76
+        },
+        "raw": {
+          "first": 0.279,
+          "last": 0.3513,
+          "ratio": 0.79
+        }
+      },
+      "3": {
+        "demean": {
+          "first": 0.2134,
+          "last": 0.5126,
+          "ratio": 0.42
+        },
+        "raw": {
+          "first": 0.0929,
+          "last": 0.2288,
+          "ratio": 0.41
+        }
+      },
+      "4": {
+        "demean": {
+          "first": 0.1277,
+          "last": 0.3892,
+          "ratio": 0.33
+        },
+        "raw": {
+          "first": 0.0549,
+          "last": 0.1694,
+          "ratio": 0.32
+        }
+      }
+    },
+    "nested": {
+      "demean": {
+        "cos_H2_H3": 0.888,
+        "cos_H2_H4": 0.435
+      },
+      "raw": {
+        "cos_H2_H3": 0.936,
+        "cos_H2_H4": 0.701
+      }
+    }
+  },
+  "output": {
+    "ruler_cos_mean": 0.9987,
+    "ruler_cos_min": 0.9978,
+    "ruler_pairwise": 0.9973,
+    "ruler_energy": 0.9973,
+    "tok_cos_mean": 0.2688,
+    "raw_K2": [
+      0.0284,
+      0.0198
+    ],
+    "demean_K2": [
+      0.3232,
+      0.1448
+    ],
+    "raw_K3": [
+      0.0251,
+      0.017,
+      0.0163
+    ],
+    "demean_K3": [
+      0.2741,
+      0.1149,
+      0.0825
+    ],
+    "raw_K4": [
+      0.0229,
+      0.0155,
+      0.0147,
+      0.0156
+    ],
+    "demean_K4": [
+      0.235,
+      0.0814,
+      0.0674,
+      0.0669
+    ],
+    "minpair": {
+      "2": {
+        "demean": {
+          "first": 0.6501,
+          "last": 0.3543,
+          "ratio": 1.84
+        },
+        "raw": {
+          "first": 0.0019,
+          "last": 0.001,
+          "ratio": 1.84
+        }
+      },
+      "3": {
+        "demean": {
+          "first": 0.5637,
+          "last": 0.1769,
+          "ratio": 3.19
+        },
+        "raw": {
+          "first": 0.0014,
+          "last": 0.0005,
+          "ratio": 3.13
+        }
+      },
+      "4": {
+        "demean": {
+          "first": 0.4674,
+          "last": 0.1414,
+          "ratio": 3.31
+        },
+        "raw": {
+          "first": 0.0012,
+          "last": 0.0004,
+          "ratio": 3.28
+        }
+      }
+    },
+    "nested": {
+      "demean": {
+        "cos_H2_H3": 0.909,
+        "cos_H2_H4": 0.732
+      },
+      "raw": {
+        "cos_H2_H3": 1.0,
+        "cos_H2_H4": 0.999
+      }
+    }
+  },
+  "rand_input_ruler": 0.577,
+  "rand_output_ruler": 0.627
+}
