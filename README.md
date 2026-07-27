@@ -45,9 +45,30 @@ preset, and read the tables.
 
 ## Headline finding so far
 
-The hyper-encoder **output** vector is strongly keyed on the hyper-token's
-**first** base token (v0.6.4: 22.95× at K=4), driven by residual initialization;
-the **input** vector is more distributed. The base-token control shows the raw
-embedding table has **no** such first-piece dominance (~1×), so this is
-**encoder-created, not BPE-inherited**. The `vx0.6.4.2` run (residual path removed)
-is the decisive test.
+### Hyper-token embedding:
+
+The two encoders learn **opposite** geometries, and the residual path decides
+how much. Comparing v0.6.4 (residual on) against its ablation vx0.6.4.2
+(residual path removed):
+
+- **Output (unembedding) reads the head.** It is prefix-dominated — changing a
+  hyper-token's *first* base token moves `E_out` far more than changing its last
+  (**22.95× at K=4** in v0.6.4). Removing the residual shrinks this to **3.83×**
+  but does not kill it: the head-reading is **real and learned, only amplified by
+  the residual**, not created by it.
+
+- **Input (embedding) keys on the opposite end.** With the residual it is roughly
+  balanced (**0.98×**); remove it and the input flips to **tail-weighted
+  (0.31×)** — the two roles key on opposite ends of the merged span.
+
+- **The residual is what prevents collapse.** With it, each vector is anchored to
+  its own first base token and there is **no shared ruler** (cos-with-mean 0.36,
+  *below* the random-init baseline 0.63 — more spread out than an untrained
+  encoder). Remove it and the output collapses almost entirely onto **one shared
+  direction (0.9988)**, well above random-init — a learned, per-merge-
+  uninformative ruler; the real per-merge signal survives only after subtracting it.
+
+### Base token embedding:
+
+The base-token control shows the raw embedding table has **no** such first-piece
+dominance (~1×), so this geometry is **encoder-created, not BPE-inherited**.
