@@ -114,8 +114,8 @@ for K in KS:
 
 # embedding tables from the v0.6.4 checkpoint (base tables are ~frozen across runs)
 sd = torch.load(f"{HERE}/weights/encoders_v064.pt", map_location="cpu", weights_only=True)
-TABLES = {"tok_emb (input space)": sd["tok_embeddings.weight"],
-          "lm_head (output space)": sd["output.weight"]}
+TABLES = {"lm_head (output space)": sd["output.weight"],
+          "tok_emb (input space)": sd["tok_embeddings.weight"]}
 
 
 def analyze(emb):
@@ -192,41 +192,62 @@ def md():
     o += ["",
           "## ④ Minimal pairs: change FIRST piece vs LAST piece (cosine distance)", "",
           "change-first = pairs sharing pieces p2..pK, differing in p1. change-last = sharing p1..p(K−1), "
-          "differing in pK. `first/last > 1` = the first piece matters more (prefix-dominated).", ""]
-    for name in TABLES:
-        o += [f"**{name}**", "",
-              "| K | variant | change-first | change-last | first/last |", "|---|---|--:|--:|--:|"]
-        for K in KS:
-            for view in ("raw", "demean"):
-                m = res[name][str(K)][f"minpair_{view}"]
-                o.append(f"| {K} | {view} | {m['first']} | {m['last']} | **{m['ratio']}×** |")
+          "differing in pK. Cells are `change-first/change-last` distances; `first/last > 1` = the first "
+          "piece matters more (prefix-dominated). Same layout as the hyper-token ④ tables.", ""]
+    for view, variant in (("raw", "④a raw"), ("demean", "④b after ruler removal")):
+        o += [f"**{variant}**", "",
+              "| table | K2 first/last | K3 first/last | K4 first/last | K2 ratio | K3 ratio | K4 ratio |",
+              "|---|--:|--:|--:|--:|--:|--:|"]
+        for name in TABLES:
+            m = {K: res[name][str(K)][f"minpair_{view}"] for K in KS}
+            fl = " | ".join(f"{m[K]['first']:.2f}/{m[K]['last']:.2f}" for K in KS)
+            rt = " | ".join(f"**{m[K]['ratio']}×**" for K in KS)
+            o.append(f"| {name} | {fl} | {rt} |")
         o.append("")
     if HYP:
         tags = list(HYP)
+        # header: base columns bolded (the control); K left-aligned, all numeric right-aligned.
+        head = ("| K | **base `lm_head`** | " + " | ".join(f"{t} out" for t in tags) +
+                " | **base `tok_emb`** | " + " | ".join(f"{t} in" for t in tags) + " |")
+        align = "|:--|" + "--:|" * (2 + 2 * len(tags))
+
+        def sxs_rows(cell):
+            """cell(space, K) -> string; base cells (space in {out_base,in_base}) get bolded."""
+            rows = []
+            for K in KS:
+                r = [f"**{cell('out_base', K)}**"]
+                r += [cell(('out', t), K) for t in tags]
+                r += [f"**{cell('in_base', K)}**"]
+                r += [cell(('in', t), K) for t in tags]
+                rows.append(f"| {K} | " + " | ".join(r) + " |")
+            return rows
+
         o += ["## Side-by-side with hyper-tokens — the money comparison", "",
               "Does the hyper-encoder impose more first-piece dominance than the raw embedding table shows? "
-              "The minimal-pair ratio is ruler-robust, so it compares cleanly across all columns.", "",
-              "**④ minpair first/last ratio (prefix-dominance), per K**", ""]
-        head = "| K | base `lm_head` | " + " | ".join(f"{t} out" for t in tags) + \
-               " | base `tok_emb` | " + " | ".join(f"{t} in" for t in tags) + " |"
-        o += [head, "|" + "---|" * (2 + 2 * len(tags) + 1)]
-        for K in KS:
-            row = [f"{res[LM][str(K)]['minpair_raw']['ratio']}×"]
-            row += [f"{HYP[t]['output']['minpair'][str(K)]['raw']['ratio']}×" for t in tags]
-            row += [f"{res[TE][str(K)]['minpair_raw']['ratio']}×"]
-            row += [f"{HYP[t]['input']['minpair'][str(K)]['raw']['ratio']}×" for t in tags]
-            o.append(f"| {K} | " + " | ".join(row) + " |")
+              "The minimal-pair ratio is ruler-robust, so it compares cleanly across all columns. "
+              "**Bold = base control** (raw table, no encoder) — the reference each encoder column is read against.", "",
+              "**④ minpair first/last ratio (prefix-dominance), per K**", "", head, align]
+
+        def ratio(space, K):
+            if space == "out_base": return f"{res[LM][str(K)]['minpair_raw']['ratio']}×"
+            if space == "in_base":  return f"{res[TE][str(K)]['minpair_raw']['ratio']}×"
+            side, t = space
+            role = "output" if side == "out" else "input"
+            return f"{HYP[t][role]['minpair'][str(K)]['raw']['ratio']}×"
+        o += sxs_rows(ratio)
+
         o += ["",
               "**① first-piece cosine (pos1), per K** — raw. "
               "(Note: a strong shared ruler makes the *raw* hyper cosine ≈ its ruler value, not 0; "
-              "read alongside ④.)", ""]
-        o += [head.replace("minpair", ""), "|" + "---|" * (2 + 2 * len(tags) + 1)]
-        for K in KS:
-            row = [f"{res[LM][str(K)]['perpiece_raw'][0]}"]
-            row += [f"{HYP[t]['output'][f'raw_K{K}'][0]}" for t in tags]
-            row += [f"{res[TE][str(K)]['perpiece_raw'][0]}"]
-            row += [f"{HYP[t]['input'][f'raw_K{K}'][0]}" for t in tags]
-            o.append(f"| {K} | " + " | ".join(row) + " |")
+              "read alongside ④.)", "", head, align]
+
+        def pp(space, K):
+            if space == "out_base": return f"{res[LM][str(K)]['perpiece_raw'][0]}"
+            if space == "in_base":  return f"{res[TE][str(K)]['perpiece_raw'][0]}"
+            side, t = space
+            role = "output" if side == "out" else "input"
+            return f"{HYP[t][role][f'raw_K{K}'][0]}"
+        o += sxs_rows(pp)
         o.append("")
     o += ["---", "",
           "*Repro: `uv run python probe_base.py`. Data: `results/base.json`. Method: see `docs/base_probe.md`.*"]

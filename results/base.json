@@ -4,80 +4,6 @@
     "3": 27465,
     "4": 22733
   },
-  "tok_emb (input space)": {
-    "2": {
-      "n": 29612,
-      "ruler_cos_mean": 0.0897,
-      "perpiece_raw": [
-        0.0931,
-        0.1191
-      ],
-      "perpiece_demean": [
-        0.0903,
-        0.1165
-      ],
-      "minpair_raw": {
-        "first": 0.9147,
-        "last": 0.9251,
-        "ratio": 0.99
-      },
-      "minpair_demean": {
-        "first": 0.9214,
-        "last": 0.9318,
-        "ratio": 0.99
-      }
-    },
-    "3": {
-      "n": 27465,
-      "ruler_cos_mean": 0.0926,
-      "perpiece_raw": [
-        0.0392,
-        0.0239,
-        0.0604
-      ],
-      "perpiece_demean": [
-        0.0391,
-        0.0244,
-        0.0606
-      ],
-      "minpair_raw": {
-        "first": 0.8684,
-        "last": 0.8986,
-        "ratio": 0.97
-      },
-      "minpair_demean": {
-        "first": 0.8749,
-        "last": 0.9051,
-        "ratio": 0.97
-      }
-    },
-    "4": {
-      "n": 22733,
-      "ruler_cos_mean": 0.0988,
-      "perpiece_raw": [
-        0.0187,
-        0.0114,
-        0.0091,
-        0.0313
-      ],
-      "perpiece_demean": [
-        0.0207,
-        0.0149,
-        0.0125,
-        0.0343
-      ],
-      "minpair_raw": {
-        "first": 0.8283,
-        "last": 0.8817,
-        "ratio": 0.94
-      },
-      "minpair_demean": {
-        "first": 0.8352,
-        "last": 0.8887,
-        "ratio": 0.94
-      }
-    }
-  },
   "lm_head (output space)": {
     "2": {
       "n": 29612,
@@ -91,13 +17,13 @@
         0.085
       ],
       "minpair_raw": {
-        "first": 0.8501,
-        "last": 0.8049,
+        "first": 0.8497,
+        "last": 0.8043,
         "ratio": 1.06
       },
       "minpair_demean": {
-        "first": 0.8962,
-        "last": 0.848,
+        "first": 0.8958,
+        "last": 0.8474,
         "ratio": 1.06
       }
     },
@@ -115,13 +41,13 @@
         0.0286
       ],
       "minpair_raw": {
-        "first": 0.7613,
-        "last": 0.7541,
+        "first": 0.7614,
+        "last": 0.7552,
         "ratio": 1.01
       },
       "minpair_demean": {
         "first": 0.8019,
-        "last": 0.7932,
+        "last": 0.7943,
         "ratio": 1.01
       }
     },
@@ -141,14 +67,88 @@
         0.0119
       ],
       "minpair_raw": {
-        "first": 0.661,
-        "last": 0.7203,
+        "first": 0.6589,
+        "last": 0.7199,
         "ratio": 0.92
       },
       "minpair_demean": {
-        "first": 0.6955,
-        "last": 0.7569,
+        "first": 0.6932,
+        "last": 0.7565,
         "ratio": 0.92
+      }
+    }
+  },
+  "tok_emb (input space)": {
+    "2": {
+      "n": 29612,
+      "ruler_cos_mean": 0.0897,
+      "perpiece_raw": [
+        0.0931,
+        0.1191
+      ],
+      "perpiece_demean": [
+        0.0903,
+        0.1165
+      ],
+      "minpair_raw": {
+        "first": 0.9153,
+        "last": 0.9247,
+        "ratio": 0.99
+      },
+      "minpair_demean": {
+        "first": 0.9219,
+        "last": 0.9314,
+        "ratio": 0.99
+      }
+    },
+    "3": {
+      "n": 27465,
+      "ruler_cos_mean": 0.0926,
+      "perpiece_raw": [
+        0.0392,
+        0.0239,
+        0.0604
+      ],
+      "perpiece_demean": [
+        0.0391,
+        0.0244,
+        0.0606
+      ],
+      "minpair_raw": {
+        "first": 0.8682,
+        "last": 0.899,
+        "ratio": 0.97
+      },
+      "minpair_demean": {
+        "first": 0.8746,
+        "last": 0.9055,
+        "ratio": 0.97
+      }
+    },
+    "4": {
+      "n": 22733,
+      "ruler_cos_mean": 0.0988,
+      "perpiece_raw": [
+        0.0187,
+        0.0114,
+        0.0091,
+        0.0313
+      ],
+      "perpiece_demean": [
+        0.0207,
+        0.0149,
+        0.0125,
+        0.0343
+      ],
+      "minpair_raw": {
+        "first": 0.8273,
+        "last": 0.8815,
+        "ratio": 0.94
+      },
+      "minpair_demean": {
+        "first": 0.8342,
+        "last": 0.8884,
+        "ratio": 0.94
       }
     }
   }
