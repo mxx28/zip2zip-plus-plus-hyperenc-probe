@@ -1,0 +1,152 @@
+{
+  "label": "vx0.6.4.2 (no-residual)",
+  "residual": false,
+  "output": {
+    "2": {
+      "n": 29612,
+      "ruler_cos_mean": 0.9974,
+      "perpiece_raw": [
+        0.014,
+        0.0083
+      ],
+      "perpiece_demean": [
+        0.3067,
+        0.111
+      ],
+      "minpair_raw": {
+        "first": 0.0047,
+        "last": 0.0006,
+        "ratio": 7.64
+      },
+      "minpair_demean": {
+        "first": 0.6925,
+        "last": 0.221,
+        "ratio": 3.13
+      }
+    },
+    "3": {
+      "n": 27465,
+      "ruler_cos_mean": 0.9982,
+      "perpiece_raw": [
+        0.0121,
+        0.0077,
+        0.0047
+      ],
+      "perpiece_demean": [
+        0.3109,
+        0.1074,
+        0.0647
+      ],
+      "minpair_raw": {
+        "first": 0.0022,
+        "last": 0.0005,
+        "ratio": 4.01
+      },
+      "minpair_demean": {
+        "first": 0.6086,
+        "last": 0.0929,
+        "ratio": 6.55
+      }
+    },
+    "4": {
+      "n": 22733,
+      "ruler_cos_mean": 0.9979,
+      "perpiece_raw": [
+        0.0106,
+        0.0069,
+        0.0057,
+        0.0041
+      ],
+      "perpiece_demean": [
+        0.3021,
+        0.0895,
+        0.0656,
+        0.0606
+      ],
+      "minpair_raw": {
+        "first": 0.0018,
+        "last": 0.0018,
+        "ratio": 1.02
+      },
+      "minpair_demean": {
+        "first": 0.5676,
+        "last": 0.1047,
+        "ratio": 5.42
+      }
+    }
+  },
+  "input": {
+    "2": {
+      "n": 29612,
+      "ruler_cos_mean": 0.721,
+      "perpiece_raw": [
+        0.0922,
+        0.1093
+      ],
+      "perpiece_demean": [
+        0.1169,
+        0.1209
+      ],
+      "minpair_raw": {
+        "first": 0.2305,
+        "last": 0.2048,
+        "ratio": 1.13
+      },
+      "minpair_demean": {
+        "first": 0.4954,
+        "last": 0.4301,
+        "ratio": 1.15
+      }
+    },
+    "3": {
+      "n": 27465,
+      "ruler_cos_mean": 0.8584,
+      "perpiece_raw": [
+        0.0665,
+        0.0821,
+        0.1088
+      ],
+      "perpiece_demean": [
+        0.0935,
+        0.0803,
+        0.1296
+      ],
+      "minpair_raw": {
+        "first": 0.0718,
+        "last": 0.1064,
+        "ratio": 0.67
+      },
+      "minpair_demean": {
+        "first": 0.2887,
+        "last": 0.4145,
+        "ratio": 0.7
+      }
+    },
+    "4": {
+      "n": 22733,
+      "ruler_cos_mean": 0.8922,
+      "perpiece_raw": [
+        0.0549,
+        0.0756,
+        0.0897,
+        0.1142
+      ],
+      "perpiece_demean": [
+        0.0781,
+        0.0561,
+        0.0784,
+        0.1332
+      ],
+      "minpair_raw": {
+        "first": 0.0407,
+        "last": 0.0792,
+        "ratio": 0.51
+      },
+      "minpair_demean": {
+        "first": 0.2168,
+        "last": 0.4032,
+        "ratio": 0.54
+      }
+    }
+  }
+}
