@@ -28,46 +28,51 @@ We always analyze that final vector — the one the model really uses.
 
 The encoder is a **pure function of the K base-token ids** it is fed, so we can
 run it on any K-tuple and get exactly the vector the model would produce for
-that merge. The inputs used below come from three distinct sources — keep them
-straight, because the provenance is what each step's claim rests on:
+that merge. The objects analyzed below come from three sources — keep them
+straight, because the provenance is what each step's claim rests on. **Exact
+counts are printed in the "Data & objects" table at the top of each report** (the
+numbers below are from the WikiText-2-raw-v1 train split).
 
-1. **Corpus n-grams (`NAT`, used by ①②③④).** `corpus.txt` is a short (~2 KB)
-   generic English paragraph (history-of-science prose) **hand-written for this
-   probe** — not a dataset sample. We tokenize it with the Phi-3.5 tokenizer and
-   take **every sliding window of K consecutive base tokens** (K = 2/3/4),
-   dropping any window that contains a special token or a digit token, and
-   keeping only base ids `< 32064` (the real Phi vocab, excluding the zip2zip
-   hyper-token id range).
-   ⚠️ **These are plausible stand-in merges, not the model's real codebook.**
-   They are consecutive real-text n-grams, *not* the actual LZW merges the
-   trained codebook holds. The geometry is faithful (the encoder treats them
-   identically to a real merge), but we are sampling the merge *space*, not the
-   model's specific merges.
+1. **Corpus n-grams (`NAT`, used by ①②③④⑤).** The corpus is **WikiText-2-raw-v1**
+   (`Salesforce/wikitext`; the run falls back to the identical-content
+   `EleutherAI/wikitext_document_level` packaging when the former can't be
+   fetched offline) — a public, standard LM benchmark, ~2.83 M base tokens. We
+   tokenize with the Phi-3.5 tokenizer and take **every sliding window of K
+   consecutive base tokens** (K = 2/3/4), dropping any window containing a
+   special or digit token (`< 32064`, matching the model's `disable_digit_ids`),
+   deduplicating, and keeping the **top-N by corpus frequency** per K
+   (`N = 5000`). Frequency is used **only** to draw a bounded, reproducible,
+   natural sample — *not* as a correctness claim about which sequences the
+   codebook merges. Typical yield: ~0.6 M / 1.5 M / 2.0 M unique K-grams before
+   the top-N cut.
 2. **Corpus vocabulary (`POOL`, used by ② and ④).** The sorted set of distinct
-   non-special / non-digit base tokens that appear in the corpus. Used as the
-   **ordinary-token anisotropy floor** in ② and as the **random-replacement
+   non-special / non-digit base tokens that appear in the corpus (~18 K). Used as
+   the **ordinary-token anisotropy floor** in ② and as the **random-replacement
    pool** in ④.
-3. **One hand-written example (used by ⑤).** The single sentence `"It is a dog"`
-   — authored by hand, tokenized, first 4 base tokens — to build the nested
-   prefixes `H2 ⊂ H3 ⊂ H4`. This is an **illustrative n = 1 case**, not corpus-
-   derived; read ⑤ as a worked example, not a statistic.
+3. **A few illustrative examples (used by ⑤).** The `N = 4` most frequent
+   *readable* 4-grams (every piece contains a letter), e.g. `in the United
+   States`, `for the first time` — each gives a nested chain `H2 ⊂ H3 ⊂ H4` from
+   its growing prefixes. These are **worked examples for the reader, not
+   aggregate statistics.**
 
 | step | operates on | source |
 |---|---|---|
-| ① raw          | `NAT` K-grams                              | corpus |
+| ① raw          | `NAT` top-N K-grams                        | corpus |
 | ② ruler        | `NAT` (+ `POOL` token floor, random-init)  | corpus + control |
-| ③ demean       | `NAT` K-grams                              | corpus |
-| ④ minimal pairs| `NAT`, one token swapped for a `POOL` draw | corpus + random (seed 0, 6 resamples) |
-| ⑤ nested       | `"It is a dog"` prefixes                   | hand-written, n = 1 |
+| ③ demean       | `NAT` top-N K-grams                        | corpus |
+| ④ minimal pairs| `NAT`, one token swapped for a uniform `POOL` draw | corpus + random (seed 0, 6 resamples) |
+| ⑤ nested       | 4 frequent readable 4-gram prefix chains   | corpus, N = 4 examples |
 
-**Do we need the model's real codebook merges?** Not for this analysis. Once
-training is done, both the hyper-encoder weights and the base-token embedding
-matrices are **fixed**, so `E(H)` is a deterministic function of the K base-token
-ids alone — it does not depend on whether `H` was an actual codebook entry. Any
-valid K-tuple therefore probes the same learned geometry, which is why
-corpus-derived stand-in n-grams are sufficient here. (Re-running the probe on the
-real codebook merges is a reasonable follow-up, but it should not change the
-conclusions.)
+**Why corpus n-grams instead of the model's real codebook merges?** Because it
+makes no difference to what we measure. Once training is done, the hyper-encoder
+weights and the base-token embedding matrices are **fixed**, so `E(H)` is a
+deterministic function of the K base-token ids alone — it does not depend on
+whether `H` was ever an actual codebook entry. Any valid K-tuple therefore probes
+the same fixed geometry, so a well-defined, reproducible corpus sample is exactly
+as valid as the codebook itself, and avoids tying the analysis to any one run's
+codebook. (The `probe_base_hyper.py` control confirms the *raw-lookup vs encoder*
+contrast is robust on identical objects; note the encoder's ratio magnitude is
+somewhat input-distribution dependent — read ④ ratios qualitatively.)
 
 ## The method, in five steps
 
@@ -122,10 +127,12 @@ embedding moves (`1 − cos`). If change-first ≫ change-last the vector is
 vector (④a) and after ruler removal (④b). (The vector *difference* `E₁−E₂` is
 unchanged by subtracting a constant, but the *cosine* framing is not — hence both.)
 
-**⑤ Nested example "It is a dog".** `H2=[It,is] → H3=[It,is,a] → H4=[It,is,a,dog]`
-share a prefix and grow. High `cos(H2,H4)` = growing prefixes stay alike (the
-encoder keys on the shared head); low = it tracks the changing tail. Shown both
-raw (⑤a) and after ruler removal (⑤b).
+**⑤ Nested growing-prefix examples.** A few (`N = 4`) frequent readable 4-grams,
+e.g. `in the United States`: `H2=[in,the] ⊂ H3=[in,the,United] ⊂
+H4=[in,the,United,States]` share a prefix and grow. High `cos(H2,H4)` = growing
+prefixes stay alike (the encoder keys on the shared head); low = it tracks the
+changing tail. Shown both raw and after ruler removal, per example. These are
+**illustrative examples for the reader, not aggregate statistics.**
 
 ### Why cosine, and why remove the ruler
 - Cosine is space-invariant, so it is comparable across the two encoders even

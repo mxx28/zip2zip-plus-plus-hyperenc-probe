@@ -17,13 +17,13 @@
         0.085
       ],
       "minpair_raw": {
-        "first": 0.8497,
-        "last": 0.8043,
+        "first": 0.8508,
+        "last": 0.8037,
         "ratio": 1.06
       },
       "minpair_demean": {
-        "first": 0.8958,
-        "last": 0.8474,
+        "first": 0.8969,
+        "last": 0.8468,
         "ratio": 1.06
       }
     },
@@ -41,13 +41,13 @@
         0.0286
       ],
       "minpair_raw": {
-        "first": 0.7614,
-        "last": 0.7552,
+        "first": 0.7597,
+        "last": 0.7555,
         "ratio": 1.01
       },
       "minpair_demean": {
-        "first": 0.8019,
-        "last": 0.7943,
+        "first": 0.8002,
+        "last": 0.7947,
         "ratio": 1.01
       }
     },
@@ -67,13 +67,13 @@
         0.0119
       ],
       "minpair_raw": {
-        "first": 0.6589,
-        "last": 0.7199,
+        "first": 0.6618,
+        "last": 0.7218,
         "ratio": 0.92
       },
       "minpair_demean": {
-        "first": 0.6932,
-        "last": 0.7565,
+        "first": 0.6962,
+        "last": 0.7584,
         "ratio": 0.92
       }
     }
@@ -91,13 +91,13 @@
         0.1165
       ],
       "minpair_raw": {
-        "first": 0.9153,
-        "last": 0.9247,
+        "first": 0.9151,
+        "last": 0.9243,
         "ratio": 0.99
       },
       "minpair_demean": {
-        "first": 0.9219,
-        "last": 0.9314,
+        "first": 0.9217,
+        "last": 0.9309,
         "ratio": 0.99
       }
     },
@@ -115,13 +115,13 @@
         0.0606
       ],
       "minpair_raw": {
-        "first": 0.8682,
+        "first": 0.8673,
         "last": 0.899,
-        "ratio": 0.97
+        "ratio": 0.96
       },
       "minpair_demean": {
-        "first": 0.8746,
-        "last": 0.9055,
+        "first": 0.8738,
+        "last": 0.9054,
         "ratio": 0.97
       }
     },
@@ -141,15 +141,85 @@
         0.0343
       ],
       "minpair_raw": {
-        "first": 0.8273,
-        "last": 0.8815,
+        "first": 0.8288,
+        "last": 0.882,
         "ratio": 0.94
       },
       "minpair_demean": {
-        "first": 0.8342,
-        "last": 0.8884,
+        "first": 0.8357,
+        "last": 0.8889,
         "ratio": 0.94
       }
     }
-  }
+  },
+  "nested_examples": [
+    {
+      "chain": [
+        "\u2581under",
+        "\u2581understand",
+        "\u2581understanding"
+      ],
+      "cos": {
+        "lm_head (output space)": {
+          "H2_H3": 0.143,
+          "H2_H4": 0.142
+        },
+        "tok_emb (input space)": {
+          "H2_H3": 0.061,
+          "H2_H4": 0.034
+        }
+      }
+    },
+    {
+      "chain": [
+        "\u2581inter",
+        "\u2581intern",
+        "\u2581international"
+      ],
+      "cos": {
+        "lm_head (output space)": {
+          "H2_H3": 0.175,
+          "H2_H4": 0.19
+        },
+        "tok_emb (input space)": {
+          "H2_H3": 0.131,
+          "H2_H4": 0.08
+        }
+      }
+    },
+    {
+      "chain": [
+        "\u2581care",
+        "\u2581careful",
+        "\u2581carefully"
+      ],
+      "cos": {
+        "lm_head (output space)": {
+          "H2_H3": 0.37,
+          "H2_H4": 0.297
+        },
+        "tok_emb (input space)": {
+          "H2_H3": 0.114,
+          "H2_H4": 0.06
+        }
+      }
+    },
+    {
+      "chain": [
+        "\u2581success",
+        "\u2581successful",
+        "\u2581successfully"
+      ],
+      "cos": {
+        "lm_head (output space)": {
+          "H2_H3": 0.489,
+          "H2_H4": 0.343
+        },
+        "tok_emb (input space)": {
+          "H2_H3": 0.243,
+          "H2_H4": 0.137
+        }
+      }
+    }
+  ]
 }

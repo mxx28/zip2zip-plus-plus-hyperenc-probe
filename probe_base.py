@@ -149,6 +149,26 @@ def analyze(emb):
 res = {"n_decomp": {str(K): len(decomp[K]) for K in KS}}
 for name, emb in TABLES.items():
     res[name] = analyze(emb)
+
+# ---- nested growing-prefix examples: raw-lookup analog of the hyper ⑤ ----
+# Real vocab tokens that are growing string-prefixes (a ⊂ b ⊂ c, mapped to H2⊂H3⊂H4).
+# Does the RAW table keep growing-prefix words alike, the way the encoder keeps growing merges alike?
+CHAINS = [("▁under", "▁understand", "▁understanding"),
+          ("▁inter", "▁intern", "▁international"),
+          ("▁care", "▁careful", "▁carefully"),
+          ("▁success", "▁successful", "▁successfully")]
+nested_examples = []
+for a, b, cc in CHAINS:
+    if not all(x in vocab for x in (a, b, cc)):
+        continue
+    ids = torch.tensor([vocab[a], vocab[b], vocab[cc]])
+    row = {"chain": [a, b, cc], "cos": {}}
+    for name, emb in TABLES.items():
+        e = emb[ids]
+        row["cos"][name] = {"H2_H3": round(F.cosine_similarity(e[0:1], e[1:2], dim=-1).item(), 3),
+                            "H2_H4": round(F.cosine_similarity(e[0:1], e[2:3], dim=-1).item(), 3)}
+    nested_examples.append(row)
+res["nested_examples"] = nested_examples
 os.makedirs(f"{HERE}/results", exist_ok=True)
 json.dump(res, open(f"{HERE}/results/base.json", "w"), indent=2)
 
@@ -183,6 +203,20 @@ def md():
                 pp = res[name][str(K)][f"perpiece_{view}"]
                 cells = "".join(f" {v:+.3f} |" for v in pp) + " — |" * (4 - K)
                 o.append(f"| {K} |{cells}")
+            o.append("")
+    if res.get("nested_examples"):
+        o += ["### Nested growing-prefix examples (raw-lookup analog of hyper ⑤)", "",
+              "Real vocab tokens that are growing string-prefixes `a ⊂ b ⊂ c` (mapped to H2⊂H3⊂H4), using "
+              "their **raw lookup embeddings** — no encoder. High cos = growing-prefix words stay alike in "
+              "the table itself. Compare against the hyper ⑤ (where the *encoder* is what keeps growing "
+              "merges alike). **Illustrative examples, not statistics.**", ""]
+        for name in TABLES:
+            o += [f"**{name}**", "",
+                  "| chain (H2 ⊂ H3 ⊂ H4) | cos(H2,H3) | cos(H2,H4) |", "|---|--:|--:|"]
+            for ex in res["nested_examples"]:
+                chain = " ⊂ ".join(x.replace("▁", "") for x in ex["chain"])
+                cc = ex["cos"][name]
+                o.append(f"| {chain} | {cc['H2_H3']} | {cc['H2_H4']} |")
             o.append("")
     o += ["## ② Base-table anisotropy (the 'ruler' analog, context only)", "",
           "| table | K2 | K3 | K4 |", "|---|--:|--:|--:|"]
