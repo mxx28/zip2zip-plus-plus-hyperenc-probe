@@ -144,6 +144,16 @@ def ruler_cos(enc):
     return round(float(F.cosine_similarity(E, E.mean(0, keepdim=True), dim=-1).mean()), 3)
 
 
+def firsttok_ruler(enc):
+    # Matched-init baseline for residual runs (zero_init_encoder_output=True):
+    # at step 0 the encoder output is exactly 0, so E0(H) = e(t1). The ruler of
+    # {e(t1)} is the shared component the model INHERITS before any training —
+    # the correct reference for "did training create/remove a ruler?". (For
+    # no-residual runs step-0 is a full-scale random encoder, so use rand-init.)
+    E = torch.cat([enc.emb[torch.tensor([w[0] for w in NAT[k]])] for k in (2, 3, 4)], 0)
+    return round(float(F.cosine_similarity(E, E.mean(0, keepdim=True), dim=-1).mean()), 3)
+
+
 def analyze(enc):
     R = {}; emb = enc.emb
     Ebase = {K: emb_of(enc, NAT[K], K) for K in (2, 3, 4)}     # encode each K-set once, reuse
@@ -205,7 +215,12 @@ res = {"label": LABEL, "preset": RUN, "residual": RESID,
        "data": {"corpus": CORPUS, "n_tokens": n_tokens, "pool": len(POOL),
                 "n_top": N_TOP, "n_resample": N_RESAMPLE, "seed": 0, "ngram": NGRAM},
        "input": analyze(ein), "output": analyze(eout),
-       "rand_input_ruler": ruler_cos(rin), "rand_output_ruler": ruler_cos(ro)}
+       "rand_input_ruler": ruler_cos(rin), "rand_output_ruler": ruler_cos(ro),
+       # matched step-0 baseline: residual runs start at E0=e(t1) (zero-init encoder),
+       # no-residual runs start at a full-scale random encoder (== rand-init).
+       "firsttok_input_ruler": firsttok_ruler(ein), "firsttok_output_ruler": firsttok_ruler(eout),
+       "matched_init_input": (firsttok_ruler(ein) if RESID else ruler_cos(rin)),
+       "matched_init_output": (firsttok_ruler(eout) if RESID else ruler_cos(ro))}
 os.makedirs(f"{HERE}/results", exist_ok=True)
 json.dump(res, open(f"{HERE}/results/{RUN}.json", "w"), indent=2)
 
@@ -218,11 +233,20 @@ def read_role(role):
     else:
         pos = ("**tail-weighted**" if r <= 0.67 else
                "**prefix-sensitive (reads the head)**" if r >= 1.5 else "roughly balanced across positions")
-    collapse = (f" It also **collapses onto a shared ruler** (cos-with-mean {a['ruler_cos_mean']}, "
-                f"{a['ruler_energy']*100:.0f}% of length), well above the ordinary-token floor "
-                f"({a['tok_cos_mean']}) and random-init ({res[f'rand_{role}_ruler']}) — a learned, "
-                f"per-merge-uninformative direction." if a["ruler_cos_mean"] >= 0.9 else
-                f" Shared-ruler component is moderate (cos-with-mean {a['ruler_cos_mean']}).")
+    mi = res[f"matched_init_{role}"]; rc = a["ruler_cos_mean"]
+    if rc >= 0.9 and rc > mi + 0.1:
+        collapse = (f" It also **collapses onto a shared ruler** (cos-with-mean {rc}, "
+                    f"{a['ruler_energy']*100:.0f}% of length), far above its matched init baseline "
+                    f"({mi}) and the ordinary-token floor ({a['tok_cos_mean']}) — a **training-induced**, "
+                    f"per-merge-uninformative direction.")
+    elif rc > mi + 0.08:
+        collapse = (f" Shared-ruler component is modest (cos-with-mean {rc}), above its matched init "
+                    f"baseline ({mi}) — a mild, **partly training-induced** shared direction, but far "
+                    f"from a full collapse.")
+    else:
+        collapse = (f" Shared-ruler component is at its matched init baseline (cos-with-mean {rc} vs "
+                    f"init {mi}), i.e. **inherited** from the base-embedding geometry, not created by "
+                    f"training.")
     return f"- **{role}**: {pos} (change-first/change-last = {r}× at K=4).{collapse}"
 
 
@@ -256,14 +280,20 @@ def md():
             o.append(f"| {role} · K{K} |{cells}")
     o += ["",
           "## ② Shared ruler (does one common vector dominate every hyper-token?)", "",
-          "cos-with-mean → 1 means all hyper-tokens are nearly the same vector. Controls: ordinary-token "
-          "floor (same space) and a random-init encoder.", "",
-          "| role | cos w/ mean | min | pairwise | energy | tok floor | rand-init |",
-          "|---|--:|--:|--:|--:|--:|--:|"]
+          "cos-with-mean → 1 means all hyper-tokens are nearly the same vector. To ask whether training "
+          "*created* a shared direction, compare against the model's **matched step-0 init** — the value "
+          f"before any training: for this {'residual' if RESID else 'no-residual'} run that is "
+          f"**{'E0 = e(t1)' if RESID else 'a full-scale random encoder'}** "
+          f"(`init (matched)` column). The `rand-enc` column is always the full-scale random encoder "
+          "(γ=1); for residual runs it is **not** the matched init and must not be used as the reference. "
+          "`tok floor` is the ordinary-token anisotropy floor in the same space.", "",
+          "| role | cos w/ mean | min | pairwise | energy | tok floor | init (matched) | rand-enc |",
+          "|---|--:|--:|--:|--:|--:|--:|--:|"]
     for role in ("output", "input"):
         a = res[role]
         o.append(f"| {role} | {a['ruler_cos_mean']} | {a['ruler_cos_min']} | {a['ruler_pairwise']} | "
-                 f"{a['ruler_energy']} | {a['tok_cos_mean']} | {res[f'rand_{role}_ruler']} |")
+                 f"{a['ruler_energy']} | {a['tok_cos_mean']} | {res[f'matched_init_{role}']} | "
+                 f"{res[f'rand_{role}_ruler']} |")
     o += ["",
           "## ③ Per-position cosine after removing the ruler", "",
           "The discriminative part of each hyper-token vs each base token.", "",
