@@ -32,7 +32,7 @@ nested = {  # (b) cos(H2, H_K); K=2 is self-similarity = 1.0
     ("base",  "output"): [1.0, 0.489, 0.343], ("base",  "input"): [1.0, 0.243, 0.137],
 }
 COL = {"output": OUT, "input": INP}
-STY = {"hyper": "-", "base": (0, (5, 2))}   # base dash matches the legend exactly
+STY = {"hyper": "-", "base": (0, (4, 2))}   # base dash matches the legend exactly
 
 
 def plot(ax, data, order):
@@ -70,15 +70,16 @@ axb.set_xlim(1.9, 4.15)
 
 # shared legend: single row, hyper pair first then base pair.
 # solid = hyper, dashed = base; blue = output, orange = input.
+# Line-only handles (no marker) so solid-vs-dashed is unmistakable.
 handles = [
-    Line2D([], [], color=OUT, lw=2, ls="-",       marker="o", ms=6, mec="white", label="hyper $\\cdot$ output"),
-    Line2D([], [], color=INP, lw=2, ls="-",       marker="o", ms=6, mec="white", label="hyper $\\cdot$ input"),
-    Line2D([], [], color=OUT, lw=2, ls=(0, (5, 2)), marker="o", ms=6, mec="white", label="base $\\cdot$ output"),
-    Line2D([], [], color=INP, lw=2, ls=(0, (5, 2)), marker="o", ms=6, mec="white", label="base $\\cdot$ input"),
+    Line2D([], [], color=OUT, lw=2.2, ls="-",        label="hyper $\\cdot$ output"),
+    Line2D([], [], color=INP, lw=2.2, ls="-",        label="hyper $\\cdot$ input"),
+    Line2D([], [], color=OUT, lw=2.2, ls=(0, (4, 2)), label="base $\\cdot$ output"),
+    Line2D([], [], color=INP, lw=2.2, ls=(0, (4, 2)), label="base $\\cdot$ input"),
 ]
 fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False,
-           fontsize=9, bbox_to_anchor=(0.5, -0.03), columnspacing=2.2,
-           handlelength=2.9, handletextpad=0.5)
+           fontsize=9, bbox_to_anchor=(0.5, -0.03), columnspacing=2.4,
+           handlelength=3.2, handletextpad=0.5)
 fig.tight_layout(rect=(0, 0.06, 1, 1))
 fig.savefig("/dlabscratch1/xinma/zip2zip-hyperenc_probe/paper_fig_untied.pdf", bbox_inches="tight")
 fig.savefig("/dlabscratch1/xinma/zip2zip-hyperenc_probe/paper_fig_untied.png", dpi=200, bbox_inches="tight")
