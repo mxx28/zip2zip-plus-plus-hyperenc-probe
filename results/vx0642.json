@@ -3,104 +3,104 @@
   "preset": "vx0642",
   "residual": false,
   "data": {
-    "corpus": "EleutherAI/wikitext_document_level (same WikiText-2-raw text) \u00b7 wikitext-2-raw-v1 [train]",
-    "n_tokens": 2827024,
+    "corpus": "Salesforce/wikitext \u00b7 wikitext-2-raw-v1 [train]",
+    "n_tokens": 2824489,
     "pool": 18028,
     "n_top": 5000,
     "n_resample": 6,
     "seed": 0,
     "ngram": {
       "2": {
-        "unique": 593717,
+        "unique": 595447,
         "kept": 5000,
-        "min_freq_kept": 47,
+        "min_freq_kept": 48,
         "max_freq": 17120
       },
       "3": {
-        "unique": 1481712,
+        "unique": 1489554,
         "kept": 5000,
         "min_freq_kept": 22,
         "max_freq": 16906
       },
       "4": {
-        "unique": 1956653,
+        "unique": 1968775,
         "kept": 5000,
-        "min_freq_kept": 10,
+        "min_freq_kept": 11,
         "max_freq": 2789
       }
     }
   },
   "input": {
-    "ruler_cos_mean": 0.7163,
-    "ruler_cos_min": 0.2986,
-    "ruler_pairwise": 0.5221,
+    "ruler_cos_mean": 0.7164,
+    "ruler_cos_min": 0.2994,
+    "ruler_pairwise": 0.5233,
     "ruler_energy": 0.5088,
     "tok_cos_mean": 0.089,
     "raw_K2": [
       0.0953,
-      0.1483
+      0.1488
     ],
     "demean_K2": [
-      0.0801,
-      0.1247
+      0.0805,
+      0.1252
     ],
     "raw_K3": [
-      0.0498,
-      0.0669,
-      0.1071
+      0.0497,
+      0.0668,
+      0.1069
     ],
     "demean_K3": [
-      0.0684,
-      0.0935,
-      0.1589
+      0.0687,
+      0.0938,
+      0.1587
     ],
     "raw_K4": [
-      0.0423,
-      0.0464,
-      0.0658,
-      0.0942
+      0.0411,
+      0.0472,
+      0.0666,
+      0.0935
     ],
     "demean_K4": [
-      0.0578,
-      0.061,
-      0.0859,
-      0.1385
+      0.0569,
+      0.0624,
+      0.0873,
+      0.1378
     ],
     "minpair": {
       "2": {
         "demean": {
-          "first": 0.2386,
-          "last": 0.3223,
+          "first": 0.2388,
+          "last": 0.3219,
           "ratio": 0.74
         },
         "raw": {
-          "first": 0.248,
-          "last": 0.3448,
+          "first": 0.2487,
+          "last": 0.345,
           "ratio": 0.72
         }
       },
       "3": {
         "demean": {
-          "first": 0.2057,
-          "last": 0.4495,
+          "first": 0.2054,
+          "last": 0.4486,
           "ratio": 0.46
         },
         "raw": {
-          "first": 0.0812,
-          "last": 0.1767,
+          "first": 0.0811,
+          "last": 0.1762,
           "ratio": 0.46
         }
       },
       "4": {
         "demean": {
-          "first": 0.1433,
-          "last": 0.3844,
+          "first": 0.1431,
+          "last": 0.3829,
           "ratio": 0.37
         },
         "raw": {
           "first": 0.0569,
-          "last": 0.1524,
-          "ratio": 0.37
+          "last": 0.1516,
+          "ratio": 0.38
         }
       }
     },
@@ -118,8 +118,8 @@
           "cos_H2_H4": 0.553
         },
         "demean": {
-          "cos_H2_H3": 0.232,
-          "cos_H2_H4": -0.143
+          "cos_H2_H3": 0.231,
+          "cos_H2_H4": -0.144
         }
       },
       {
@@ -152,7 +152,7 @@
           "cos_H2_H4": 0.492
         },
         "demean": {
-          "cos_H2_H3": 0.044,
+          "cos_H2_H3": 0.043,
           "cos_H2_H4": -0.129
         }
       },
@@ -169,7 +169,7 @@
           "cos_H2_H4": 0.562
         },
         "demean": {
-          "cos_H2_H3": 0.176,
+          "cos_H2_H3": 0.177,
           "cos_H2_H4": 0.117
         }
       },
@@ -199,70 +199,70 @@
     "ruler_energy": 0.9975,
     "tok_cos_mean": 0.213,
     "raw_K2": [
-      0.012,
-      0.0047
+      0.0119,
+      0.0048
     ],
     "demean_K2": [
-      0.3176,
-      0.1512
+      0.3173,
+      0.1519
     ],
     "raw_K3": [
-      0.0109,
-      0.0033,
-      0.0005
+      0.0108,
+      0.0034,
+      0.0006
     ],
     "demean_K3": [
-      0.2972,
-      0.1384,
-      0.0815
+      0.2965,
+      0.1392,
+      0.0817
     ],
     "raw_K4": [
-      0.0084,
-      0.002,
-      0.0013,
+      0.0081,
+      0.0023,
+      0.0015,
       0.0003
     ],
     "demean_K4": [
-      0.2687,
-      0.1102,
-      0.0937,
-      0.0762
+      0.2673,
+      0.1136,
+      0.0967,
+      0.077
     ],
     "minpair": {
       "2": {
         "demean": {
-          "first": 0.6499,
-          "last": 0.3364,
+          "first": 0.65,
+          "last": 0.3372,
           "ratio": 1.93
         },
         "raw": {
           "first": 0.002,
           "last": 0.001,
-          "ratio": 2.01
+          "ratio": 2.09
         }
       },
       "3": {
         "demean": {
           "first": 0.602,
-          "last": 0.166,
-          "ratio": 3.63
+          "last": 0.1663,
+          "ratio": 3.62
         },
         "raw": {
-          "first": 0.0021,
-          "last": 0.0005,
-          "ratio": 3.92
+          "first": 0.002,
+          "last": 0.0004,
+          "ratio": 5.04
         }
       },
       "4": {
         "demean": {
-          "first": 0.5094,
-          "last": 0.1393,
+          "first": 0.5089,
+          "last": 0.139,
           "ratio": 3.66
         },
         "raw": {
-          "first": 0.0019,
+          "first": 0.0018,
           "last": 0.0004,
-          "ratio": 4.85
+          "ratio": 4.37
         }
       }
     },
@@ -280,8 +280,8 @@
           "cos_H2_H4": 0.999
         },
         "demean": {
-          "cos_H2_H3": 0.825,
-          "cos_H2_H4": 0.437
+          "cos_H2_H3": 0.824,
+          "cos_H2_H4": 0.435
         }
       },
       {
@@ -314,8 +314,8 @@
           "cos_H2_H4": 0.999
         },
         "demean": {
-          "cos_H2_H3": 0.633,
-          "cos_H2_H4": 0.533
+          "cos_H2_H3": 0.632,
+          "cos_H2_H4": 0.532
         }
       },
       {
@@ -332,7 +332,7 @@
         },
         "demean": {
           "cos_H2_H3": 0.829,
-          "cos_H2_H4": 0.634
+          "cos_H2_H4": 0.635
         }
       },
       {
@@ -354,6 +354,10 @@
       }
     ]
   },
-  "rand_input_ruler": 0.561,
-  "rand_output_ruler": 0.639
+  "rand_input_ruler": 0.562,
+  "rand_output_ruler": 0.641,
+  "firsttok_input_ruler": 0.152,
+  "firsttok_output_ruler": 0.433,
+  "matched_init_input": 0.562,
+  "matched_init_output": 0.641
 }
