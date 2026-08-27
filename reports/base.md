@@ -38,7 +38,7 @@ Mean `cos(emb[T], emb[p_i])` per position. Both **raw** and **demean** (ruler re
 | 3 | +0.039 | +0.024 | +0.061 | — |
 | 4 | +0.021 | +0.015 | +0.013 | +0.034 |
 
-### Nested growing-prefix examples (raw-lookup analog of hyper ⑤)
+### Growth probe: growing-prefix examples (raw-lookup analog of hyper ⑤)
 
 Real vocab tokens that are growing string-prefixes `a ⊂ b ⊂ c` (mapped to H2⊂H3⊂H4), using their **raw lookup embeddings** — no encoder. High cos = growing-prefix words stay alike in the table itself. Compare against the hyper ⑤ (where the *encoder* is what keeps growing merges alike). **Illustrative examples, not statistics.**
 
@@ -67,7 +67,7 @@ Real vocab tokens that are growing string-prefixes `a ⊂ b ⊂ c` (mapped to H2
 | lm_head (output space) | 0.2297 | 0.2309 | 0.2323 |
 | tok_emb (input space) | 0.0897 | 0.0926 | 0.0988 |
 
-## ④ Minimal pairs: change FIRST piece vs LAST piece (cosine distance)
+## ④ Substitution probe: replace first vs last piece (cosine distance)
 
 change-first = pairs sharing pieces p2..pK, differing in p1. change-last = sharing p1..p(K−1), differing in pK. Cells are `change-first/change-last` distances; `first/last > 1` = the first piece matters more (prefix-dominated). Same layout as the hyper-token ④ tables.
 
@@ -89,7 +89,7 @@ change-first = pairs sharing pieces p2..pK, differing in p1. change-last = shari
 
 Does the hyper-encoder impose more first-piece dominance than the raw embedding table shows? The minimal-pair ratio is ruler-robust, so it compares cleanly across all columns. **Bold = base control** (raw table, no encoder) — the reference each encoder column is read against.
 
-**④ minpair first/last ratio (prefix-dominance), per K**
+**④ substitution first/last ratio (prefix-dominance), per K**
 
 | K | **base `lm_head`** | v0.6.4 out | vx0.6.4.2 out | **base `tok_emb`** | v0.6.4 in | vx0.6.4.2 in |
 |:--|--:|--:|--:|--:|--:|--:|

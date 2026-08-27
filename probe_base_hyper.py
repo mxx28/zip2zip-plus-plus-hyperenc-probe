@@ -131,7 +131,7 @@ def analyze(enc, residual):
             base = (E - c) if sub else E
             rk[f"perpiece_{view}"] = [round(F.cosine_similarity(base, emb[pieces[:, i]], dim=-1).mean().item(), 4)
                                       for i in range(K)]
-        # ④ minimal pairs on the SAME pairs as base_probe, through the encoder
+        # ④ substitution probe on the SAME pairs as base_probe, through the encoder
         for view, sub in (("raw", False), ("demean", True)):
             def dist(a, b):
                 ea, eb = E[a], E[b]
@@ -187,7 +187,7 @@ def md_single(tag):
     for role, name in ROLES:
         o.append(f"| {name} | " + " | ".join(f"{r[role][str(K)]['ruler_cos_mean']}" for K in KS) + " |")
     o += ["",
-          "## ④ Minimal pairs: change FIRST vs LAST piece (cosine distance)", "",
+          "## ④ Substitution probe: replace first vs last piece (cosine distance)", "",
           "Same pairs as `base.md`, but distance is between encoder vectors. `first/last > 1` = "
           "prefix-dominated.", ""]
     for view, variant in (("raw", "④a raw"), ("demean", "④b after ruler removal")):
@@ -235,7 +235,7 @@ def md_combined():
         return rows
 
     if base:
-        o += block("**④ minpair first/last ratio (prefix-dominance), per K**",
+        o += block("**④ substitution first/last ratio (prefix-dominance), per K**",
                    lambda name, K: f"{base[name][str(K)]['minpair_raw']['ratio']}×",
                    lambda t, role, K: f"{RES[t][role][str(K)]['minpair_raw']['ratio']}×")
         o += block("**① first-piece cosine (pos1), per K** — raw",

@@ -43,7 +43,7 @@ Same objects as the base-token control (`probe_base.py`) — every base token `T
 | lm_head (output space) | 0.9974 | 0.9982 | 0.9979 |
 | tok_emb (input space) | 0.721 | 0.8584 | 0.8922 |
 
-## ④ Minimal pairs: change FIRST vs LAST piece (cosine distance)
+## ④ Substitution probe: replace first vs last piece (cosine distance)
 
 Same pairs as `base.md`, but distance is between encoder vectors. `first/last > 1` = prefix-dominated.
 

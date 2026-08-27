@@ -6,8 +6,8 @@ lm_head) of a single checkpoint, on hyper-tokens sampled from a standard corpus
   ①  raw      per-position cosine of the final vector with each base token
   ②  ruler    shared-vector stats (cos-with-mean, pairwise, energy) + controls
   ③  demean   per-position cosine after subtracting the shared ruler
-  ④  minpair  causal minimal pairs: change first vs last token (cosine distance)
-  ⑤  nested   growing-prefix examples H2⊂H3⊂H4 similarity (illustrative)
+  ④  substitution  substitution probe: change first vs last token (cosine distance)
+  ⑤  growth   growth probe: growing-prefix examples H2⊂H3⊂H4 similarity (illustrative)
 
 Hyper-tokens (objects analyzed) — see the "Data & objects" section of the
 report for exact counts:
@@ -303,7 +303,7 @@ def md():
             cells = "".join(f" {v:+.3f} |" for v in res[role][f"demean_K{K}"]) + " — |"*(4-K)
             o.append(f"| {role} · K{K} |{cells}")
     o += ["",
-          "## ④ Causal minimal pairs (change first vs last token)", "",
+          "## ④ Substitution probe (replace first vs last token)", "",
           "Change one base token (to a random pool token), measure how much the embedding moves (cosine "
           "distance). first/last > 1 = prefix-dominated (reads the head); < 1 = tail-weighted. Two "
           "variants — on the raw vector, and after removing the shared ruler.", ""]
@@ -317,7 +317,7 @@ def md():
             rt = " | ".join(f"**{mp[K][key]['ratio']}×**" for K in (2, 3, 4))
             o.append(f"| {role} | {fl} | {rt} |")
         o.append("")
-    o += ['## ⑤ Nested growing-prefix examples', "",
+    o += ['## ⑤ Growth probe: growing-prefix examples', "",
           "Illustrative real chains H2⊂H3⊂H4 (a frequent 4-gram and its growing prefixes). "
           "High cos(H2,H4) = growing prefixes stay alike (encoder keys on the shared head). "
           "Shown raw and after ruler removal. **These are examples for the reader, not aggregate statistics.**", ""]

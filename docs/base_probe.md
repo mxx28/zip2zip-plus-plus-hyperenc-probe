@@ -91,7 +91,7 @@ here.
 
 - **① per-piece cosine**: `cos(emb[T], emb[p_i])` for each position `i` — is a
   base token more like its first piece or a later one?
-- **④ minimal pairs**: real vocab-token pairs that share K−1 pieces and differ
+- **④ Substitution probe**: real vocab-token pairs that share K−1 pieces and differ
   in exactly one position —
   - *change-first*: share pieces `p2..pK`, differ in `p1`;
   - *change-last*: share pieces `p1..p(K-1)`, differ in `pK`;
@@ -113,7 +113,7 @@ ratio** (ruler-robust, so it compares cleanly across every column); output space
 (`lm_head`) then input space (`tok_emb`), each with the raw base table vs the
 residual-on (v0.6.4) and residual-off (vx0.6.4.2) hyper-encoders.
 
-**④ minpair first/last ratio (prefix-dominance), per K**
+**④ substitution first/last ratio (prefix-dominance), per K**
 
 | K | base `lm_head` | v0.6.4 out | vx0.6.4.2 out | base `tok_emb` | v0.6.4 in | vx0.6.4.2 in |
 |---|--:|--:|--:|--:|--:|--:|

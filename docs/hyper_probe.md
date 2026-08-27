@@ -60,8 +60,8 @@ numbers below are from the WikiText-2-raw-v1 train split).
 | ① raw          | `NAT` top-N K-grams                        | corpus |
 | ② ruler        | `NAT` (+ `POOL` token floor, random-init)  | corpus + control |
 | ③ demean       | `NAT` top-N K-grams                        | corpus |
-| ④ minimal pairs| `NAT`, one token swapped for a uniform `POOL` draw | corpus + random (seed 0, 6 resamples) |
-| ⑤ nested       | 4 frequent readable 4-gram prefix chains   | corpus, N = 4 examples |
+| ④ substitution | `NAT`, one token swapped for a uniform `POOL` draw | corpus + random (seed 0, 6 resamples) |
+| ⑤ growth       | 4 frequent readable 4-gram prefix chains   | corpus, N = 4 examples |
 
 **Why corpus n-grams instead of the model's real codebook merges?** Because it
 makes no difference to what we measure. Once training is done, the hyper-encoder
@@ -120,14 +120,14 @@ shared ruler was hiding the signal.
 repeat ①. It reveals
 which position the vector keys on.
 
-**④ Causal minimal pairs — the headline test.** Take a real hyper-token, change
+**④ Substitution probe — the headline test.** Take a real hyper-token, change
 exactly one base token (the **first** vs the **last**), and measure how much the
 embedding moves (`1 − cos`). If change-first ≫ change-last the vector is
 **prefix-dominated** (reads the head). Reported per K with the first/last ratio, **both** on the raw
 vector (④a) and after ruler removal (④b). (The vector *difference* `E₁−E₂` is
 unchanged by subtracting a constant, but the *cosine* framing is not — hence both.)
 
-**⑤ Nested growing-prefix examples.** A few (`N = 4`) frequent readable 4-grams,
+**⑤ Growth probe.** A few (`N = 4`) frequent readable 4-grams,
 e.g. `in the United States`: `H2=[in,the] ⊂ H3=[in,the,United] ⊂
 H4=[in,the,United,States]` share a prefix and grow. High `cos(H2,H4)` = growing
 prefixes stay alike (the encoder keys on the shared head); low = it tracks the

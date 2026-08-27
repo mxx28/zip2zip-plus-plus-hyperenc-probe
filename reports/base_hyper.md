@@ -2,7 +2,7 @@
 
 Every column analyzes the **same** base tokens and the **same** minimal pairs (from `probe_base.py`'s BPE decompositions). The only difference is how each token is embedded: the **base** columns use the raw lookup `emb[T]`; the encoder columns feed the same pieces `[p1..pK]` through the hyper-encoder. Unlike `base.md`'s side-by-side (which used corpus n-grams for the hyper side), here the hyper side is the identical object set — so this isolates raw-lookup vs encoder with data held fixed, and uses real shared-piece pairs (no random replacement). **Bold = base control** (raw table, no encoder).
 
-**④ minpair first/last ratio (prefix-dominance), per K**
+**④ substitution first/last ratio (prefix-dominance), per K**
 
 | K | **base `lm_head`** | v0.6.4 out | vx0.6.4.2 out | **base `tok_emb`** | v0.6.4 in | vx0.6.4.2 in |
 |:--|--:|--:|--:|--:|--:|--:|

@@ -131,7 +131,7 @@ def analyze(emb):
             base = (emb[T] - c) if sub else emb[T]
             rk[f"perpiece_{view}"] = [round(F.cosine_similarity(base, emb[P[i]], dim=-1).mean().item(), 4)
                                       for i in range(K)]
-        # ④ minimal pairs: raw + demean (ruler subtracted from both members, as in the hyper probe).
+        # ④ substitution probe: raw + demean (ruler subtracted from both members, as in the hyper probe).
         for view, sub in (("raw", False), ("demean", True)):
             def dist(a, b):
                 ea, eb = emb[a], emb[b]
@@ -205,7 +205,7 @@ def md():
                 o.append(f"| {K} |{cells}")
             o.append("")
     if res.get("nested_examples"):
-        o += ["### Nested growing-prefix examples (raw-lookup analog of hyper ⑤)", "",
+        o += ["### Growth probe: growing-prefix examples (raw-lookup analog of hyper ⑤)", "",
               "Real vocab tokens that are growing string-prefixes `a ⊂ b ⊂ c` (mapped to H2⊂H3⊂H4), using "
               "their **raw lookup embeddings** — no encoder. High cos = growing-prefix words stay alike in "
               "the table itself. Compare against the hyper ⑤ (where the *encoder* is what keeps growing "
@@ -224,7 +224,7 @@ def md():
         vals = " | ".join(f"{res[name][str(K)]['ruler_cos_mean']}" for K in KS)
         o.append(f"| {name} | {vals} |")
     o += ["",
-          "## ④ Minimal pairs: change FIRST piece vs LAST piece (cosine distance)", "",
+          "## ④ Substitution probe: replace first vs last piece (cosine distance)", "",
           "change-first = pairs sharing pieces p2..pK, differing in p1. change-last = sharing p1..p(K−1), "
           "differing in pK. Cells are `change-first/change-last` distances; `first/last > 1` = the first "
           "piece matters more (prefix-dominated). Same layout as the hyper-token ④ tables.", ""]
@@ -260,7 +260,7 @@ def md():
               "Does the hyper-encoder impose more first-piece dominance than the raw embedding table shows? "
               "The minimal-pair ratio is ruler-robust, so it compares cleanly across all columns. "
               "**Bold = base control** (raw table, no encoder) — the reference each encoder column is read against.", "",
-              "**④ minpair first/last ratio (prefix-dominance), per K**", "", head, align]
+              "**④ substitution first/last ratio (prefix-dominance), per K**", "", head, align]
 
         def ratio(space, K):
             if space == "out_base": return f"{res[LM][str(K)]['minpair_raw']['ratio']}×"

@@ -13,7 +13,7 @@ weights (no training, no GPU); one checkpoint per run, compare reports yourself.
 | **Base-token control** | `probe_base.py` | [`docs/base_probe.md`](docs/base_probe.md) | does the raw embedding table already show that geometry (BPE-inherited), or is it encoder-created? |
 
 Both share the same five-step cosine method (① raw per-position · ② shared
-"ruler" · ③ ruler-removed per-position · ④ causal minimal pairs · ⑤ nested) so
+"ruler" · ③ ruler-removed per-position · ④ substitution · ⑤ growth) so
 their reports read side by side.
 
 ## Layout
@@ -44,6 +44,10 @@ HF_HOME=/dlabscratch1/gentilin/.cache/huggingface \
 to a writable path internally, so no extra env is needed. Presets in `probe.py`:
 `v05`, `v052`, `v064`, `vx0642` (weights present). See each method doc for how to
 extract weights, add a preset, and read the tables.
+
+## Paper figures
+
+Paper plots follow a CSV-first workflow: `prepare_figure_data.py` writes the figure data, then `make_paper_fig.py` and `make_span_similarity_fig.py` read only those CSV files. See [`docs/paper_figures.md`](docs/paper_figures.md) for commands, provenance, and captions.
 
 ## Headline finding so far
 
