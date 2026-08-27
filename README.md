@@ -23,11 +23,10 @@ enc_lib.py        faithful, bit-exact (max|Δ|=0) encoder forward + load_pair(pa
 probe.py          hyper-token probe (WikiText-2 n-grams) → results/<preset>.json + reports/<preset>.md
 probe_base.py     base-token BPE control → results/base.json + reports/base.md
 probe_base_hyper.py  control: base BPE pieces through the encoder (OOD, appendix)
-corpus.txt        legacy hand-written prose (old stand-in corpus; probe.py now uses WikiText-2)
 weights/          extracted per-checkpoint tensors (hyper_encoder, hyper_output,
                   tok_embeddings, output.weight) — small, not the 17GB model.pt
 results/          <name>.json + <name>.log
-reports/          <name>.md   (reports/html/ : earlier hand-designed HTML reports)
+reports/          <name>.md
 ```
 
 ## Run
