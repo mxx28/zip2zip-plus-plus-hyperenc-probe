@@ -1,86 +1,149 @@
-"""Two-panel figure for the untied hyper-encoder section.
-(a) causal minimal-pair ratio r_K vs span length K (log y)
-(b) nested-prefix similarity cos(H2, H_K) vs span length K
-Encoding: colour = role (output / input), line style = model (hyper solid / base dashed).
-Colours are the design-system default CVD-safe categorical slots 1 (blue) & 2 (orange).
-Outputs paper_fig_untied.pdf (vector, for LaTeX) + .png (preview).
-"""
+"""Plot Figure 1 from figure_data/figure1_substitution.csv only."""
+import csv
+import os
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
+import numpy as np
 
-OUT = "#2a78d6"   # role = output
-INP = "#eb6834"   # role = input
-INK = "#0b0b0b"; MUTED = "#8a8a86"; GRID = "#e6e6e3"
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+CSV_PATH = os.path.join(HERE, "figure_data", "figure1_substitution.csv")
+PDF_PATH = os.path.join(HERE, "paper_fig_untied.pdf")
+PNG_PATH = os.path.join(HERE, "paper_fig_untied.png")
+
+INK = "#171717"
+MUTED = "#777777"
+GRID = "#dedede"
+COLORS = {
+    ("LZW hyper-token", "output"): "#4c78a8",
+    ("LZW hyper-token", "input"): "#e1814c",
+    ("BPE base-token", "output"): "#55a868",
+    ("BPE base-token", "input"): "#c44e52",
+}
+
 plt.rcParams.update({
-    "font.family": "DejaVu Sans", "font.size": 10,
-    "axes.edgecolor": MUTED, "axes.linewidth": 0.8,
-    "axes.labelcolor": INK, "text.color": INK,
-    "xtick.color": MUTED, "ytick.color": MUTED,
-    "xtick.labelsize": 9, "ytick.labelsize": 9,
+    "font.family": "DejaVu Sans",
+    "font.size": 9,
+    "axes.edgecolor": MUTED,
+    "axes.linewidth": 0.8,
+    "axes.labelcolor": INK,
+    "text.color": INK,
+    "xtick.color": INK,
+    "ytick.color": INK,
 })
-K = [2, 3, 4]
-
-# --- data (v0.6.4 hyper + base control, WikiText-2) ---
-ratio = {  # (a) minimal-pair r_K
-    ("hyper", "output"): [6.2, 14.8, 20.9], ("hyper", "input"): [0.55, 0.82, 0.99],
-    ("base",  "output"): [1.06, 1.01, 0.92], ("base",  "input"): [0.99, 0.96, 0.94],
-}
-nested = {  # (b) cos(H2, H_K); K=2 is self-similarity = 1.0
-    ("hyper", "output"): [1.0, 0.938, 0.883], ("hyper", "input"): [1.0, 0.678, 0.484],
-    ("base",  "output"): [1.0, 0.489, 0.343], ("base",  "input"): [1.0, 0.243, 0.137],
-}
-COL = {"output": OUT, "input": INP}
-STY = {"hyper": "-", "base": (0, (4, 2))}   # base dash matches the legend exactly
 
 
-def plot(ax, data, order):
-    for model, role in order:
-        ax.plot(K, data[(model, role)], ls=STY[model], color=COL[role], lw=2,
-                marker="o", ms=6, mec="white", mew=1.0,
-                zorder=4 if model == "hyper" else 3,
-                alpha=1.0 if model == "hyper" else 0.9)
-    ax.set_xticks(K); ax.set_xlabel("span length $K$")
-    ax.grid(axis="y", color=GRID, lw=0.8, zorder=0)
-    for s in ("top", "right"):
-        ax.spines[s].set_visible(False)
+def load_data():
+    values = {}
+    with open(CSV_PATH, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            key = (row["panel"], row["metric"], row["role"], int(row["k"]))
+            if key in values:
+                raise ValueError(f"duplicate Figure 1 row: {key}")
+            values[key] = float(row["value"])
+
+    expected = {
+        (panel, metric, role, k)
+        for panel in ("LZW hyper-token", "BPE base-token")
+        for metric in ("first", "last", "ratio")
+        for role in ("output", "input")
+        for k in (2, 3, 4)
+    }
+    if set(values) != expected:
+        raise ValueError(
+            f"Figure 1 CSV keys mismatch: missing={expected-set(values)}, "
+            f"extra={set(values)-expected}"
+        )
+    return values
 
 
-fig, (axa, axb) = plt.subplots(1, 2, figsize=(7.2, 3.0))
-order = [("base", "output"), ("base", "input"), ("hyper", "input"), ("hyper", "output")]
+def value_label(metric, value):
+    if metric == "ratio":
+        return f"{value:.1f}" if value >= 2 else f"{value:.2f}"
+    return f"{value:.2f}"
 
-# (a) minimal-pair ratio, log scale
-plot(axa, ratio, order)
-axa.set_yscale("log")
-axa.axhline(1.0, color=MUTED, lw=1.0, ls=":", zorder=1)
-axa.text(2.02, 1.06, "balanced ($r_K{=}1$)", fontsize=7.5, color=MUTED, va="bottom")
-axa.set_ylabel("first/last ratio  $r_K$")
-axa.set_ylim(0.45, 32)
-axa.set_yticks([0.5, 1, 2, 5, 10, 20]); axa.set_yticklabels(["0.5", "1", "2", "5", "10", "20"])
-axa.set_title("(a) Causal minimal pairs", fontsize=10, color=INK, pad=6)
-axa.set_xlim(1.9, 4.15)
 
-# (b) nested-prefix decay
-plot(axb, nested, order)
-axb.set_ylabel("$\\cos(H_2,\\,H_K)$")
-axb.set_ylim(0.0, 1.03)
-axb.set_title("(b) Nested-prefix similarity", fontsize=10, color=INK, pad=6)
-axb.set_xlim(1.9, 4.15)
+def main():
+    data = load_data()
+    panels = ("LZW hyper-token", "BPE base-token")
+    metrics = ("first", "last", "ratio")
+    titles = {
+        "first": "First-position substitution",
+        "last": "Last-position substitution",
+        "ratio": r"Ratio $r_K$",
+    }
+    ks = (2, 3, 4)
+    x = np.arange(len(ks))
+    width = 0.36
 
-# shared legend: single row, hyper pair first then base pair.
-# solid = hyper, dashed = base; blue = output, orange = input.
-# Line-only handles (no marker) so solid-vs-dashed is unmistakable.
-handles = [
-    Line2D([], [], color=OUT, lw=2.2, ls="-",        label="hyper $\\cdot$ output"),
-    Line2D([], [], color=INP, lw=2.2, ls="-",        label="hyper $\\cdot$ input"),
-    Line2D([], [], color=OUT, lw=2.2, ls=(0, (4, 2)), label="base $\\cdot$ output"),
-    Line2D([], [], color=INP, lw=2.2, ls=(0, (4, 2)), label="base $\\cdot$ input"),
-]
-fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False,
-           fontsize=9, bbox_to_anchor=(0.5, -0.03), columnspacing=2.4,
-           handlelength=3.2, handletextpad=0.5)
-fig.tight_layout(rect=(0, 0.06, 1, 1))
-fig.savefig("/dlabscratch1/xinma/zip2zip-hyperenc_probe/paper_fig_untied.pdf", bbox_inches="tight")
-fig.savefig("/dlabscratch1/xinma/zip2zip-hyperenc_probe/paper_fig_untied.png", dpi=200, bbox_inches="tight")
-print("wrote paper_fig_untied.pdf / .png")
+    fig, axes = plt.subplots(2, 3, figsize=(10.8, 5.1))
+    for row_index, panel in enumerate(panels):
+        for column_index, metric in enumerate(metrics):
+            ax = axes[row_index, column_index]
+            for offset, role in ((-width / 2, "output"), (width / 2, "input")):
+                y = [data[(panel, metric, role, k)] for k in ks]
+                bars = ax.bar(
+                    x + offset,
+                    y,
+                    width,
+                    color=COLORS[(panel, role)],
+                    label=f"{role} embedding",
+                    zorder=3,
+                )
+                for bar, value in zip(bars, y):
+                    ax.annotate(
+                        value_label(metric, value),
+                        (bar.get_x() + bar.get_width() / 2, bar.get_height()),
+                        xytext=(0, 3),
+                        textcoords="offset points",
+                        ha="center",
+                        va="bottom",
+                        fontsize=7,
+                        color=INK,
+                    )
+
+            ax.set_xticks(x, [f"K={k}" for k in ks])
+            ax.set_title(titles[metric], fontsize=10, pad=8)
+            ax.grid(axis="y", color=GRID, linewidth=0.7, zorder=0)
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+            if metric == "ratio":
+                ax.axhline(
+                    1.0,
+                    color=MUTED,
+                    linestyle=(0, (3, 2)),
+                    linewidth=0.9,
+                    zorder=2,
+                )
+                ax.set_ylim(0, 23.5 if row_index == 0 else 1.35)
+            else:
+                ax.set_ylim(0, 1.08)
+            if column_index == 0:
+                ax.set_ylabel("cosine distance")
+            if column_index == 2:
+                ax.legend(
+                    loc="upper left",
+                    bbox_to_anchor=(1.01, 1.0),
+                    borderaxespad=0.0,
+                    frameon=True,
+                    fontsize=7.5,
+                )
+
+    fig.text(
+        0.018, 0.72, "LZW hyper-token",
+        rotation=90, va="center", ha="center", weight="bold",
+    )
+    fig.text(
+        0.018, 0.28, "BPE base-token",
+        rotation=90, va="center", ha="center", weight="bold",
+    )
+    fig.tight_layout(rect=(0.035, 0.02, 1, 1), h_pad=2.0, w_pad=1.5)
+    fig.savefig(PDF_PATH, bbox_inches="tight")
+    fig.savefig(PNG_PATH, dpi=240, bbox_inches="tight")
+    print(f"wrote {os.path.basename(PDF_PATH)} / {os.path.basename(PNG_PATH)}")
+
+
+if __name__ == "__main__":
+    main()
