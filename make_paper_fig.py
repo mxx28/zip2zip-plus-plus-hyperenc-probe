@@ -70,15 +70,15 @@ def main():
     panels = ("LZW hyper-token", "BPE base-token")
     metrics = ("first", "last", "ratio")
     titles = {
-        "first": "First-position substitution",
-        "last": "Last-position substitution",
+        "first": "Prefix Substitution",
+        "last": "Suffix Substitution",
         "ratio": r"Ratio $r_K$",
     }
     ks = (2, 3, 4)
     x = np.arange(len(ks))
     width = 0.36
 
-    fig, axes = plt.subplots(2, 3, figsize=(10.8, 5.1))
+    fig, axes = plt.subplots(2, 3, figsize=(12.6, 5.0))
     for row_index, panel in enumerate(panels):
         for column_index, metric in enumerate(metrics):
             ax = axes[row_index, column_index]
@@ -105,10 +105,7 @@ def main():
                     )
 
             ax.set_xticks(x, [f"K={k}" for k in ks])
-            ax.set_title(titles[metric], fontsize=10, pad=8)
-            ax.grid(axis="y", color=GRID, linewidth=0.7, zorder=0)
-            ax.spines["top"].set_visible(False)
-            ax.spines["right"].set_visible(False)
+            ax.set_title(titles[metric], fontsize=11, pad=6)
             if metric == "ratio":
                 ax.axhline(
                     1.0,
@@ -117,29 +114,24 @@ def main():
                     linewidth=0.9,
                     zorder=2,
                 )
-                ax.set_ylim(0, 23.5 if row_index == 0 else 1.35)
+                ax.set_ylim(0, 22.8 if row_index == 0 else 1.50)
             else:
-                ax.set_ylim(0, 1.08)
-            if column_index == 0:
-                ax.set_ylabel("cosine distance")
-            if column_index == 2:
-                ax.legend(
-                    loc="upper left",
-                    bbox_to_anchor=(1.01, 1.0),
-                    borderaxespad=0.0,
-                    frameon=True,
-                    fontsize=7.5,
-                )
+                ax.set_ylim(0, 1.28)
+            legend_loc = (
+                "upper left" if metric == "ratio" and row_index == 0
+                else "upper right"
+            )
+            ax.legend(loc=legend_loc, frameon=True, fontsize=7.5)
 
     fig.text(
-        0.018, 0.72, "LZW hyper-token",
+        0.018, 0.72, "LZW Hyper-token",
         rotation=90, va="center", ha="center", weight="bold",
     )
     fig.text(
-        0.018, 0.28, "BPE base-token",
+        0.018, 0.28, "BPE Base token",
         rotation=90, va="center", ha="center", weight="bold",
     )
-    fig.tight_layout(rect=(0.035, 0.02, 1, 1), h_pad=2.0, w_pad=1.5)
+    fig.tight_layout(rect=(0.04, 0.02, 1, 1), h_pad=1.8, w_pad=1.7)
     fig.savefig(PDF_PATH, bbox_inches="tight")
     fig.savefig(PNG_PATH, dpi=240, bbox_inches="tight")
     print(f"wrote {os.path.basename(PDF_PATH)} / {os.path.basename(PNG_PATH)}")

@@ -57,7 +57,9 @@ def main():
         "input": "Input embedding (meaning-sensitive)",
     }
 
-    fig, axes = plt.subplots(1, 2, figsize=(12.2, 5.4))
+    has_long_labels = max(map(len, labels)) > 20
+    figure_width = 13.0 if has_long_labels else 11.0
+    fig, axes = plt.subplots(1, 2, figsize=(figure_width, 5.8))
     vmin = min(matrix.min() for matrix in matrices.values())
     for ax, role in zip(axes, ("output", "input")):
         matrix = matrices[role]
@@ -67,8 +69,8 @@ def main():
             range(6), labels,
             rotation=32, ha="right", rotation_mode="anchor", fontsize=8,
         )
-        ax.set_yticks(range(6), [wrap_long_label(label) for label in labels], fontsize=8)
-        ax.tick_params(length=0)
+        ax.set_yticks(range(6), labels, fontsize=8)
+        ax.tick_params(axis="both", direction="out", length=4, width=0.8, color="#333333", bottom=True, left=True, top=False, right=False, pad=3)
         for i in range(6):
             for j in range(6):
                 value = matrix[i, j]
@@ -78,10 +80,14 @@ def main():
                     ha="center", va="center", fontsize=8, color=color,
                 )
         for spine in ax.spines.values():
-            spine.set_visible(False)
+            spine.set_visible(True)
+            spine.set_linewidth(0.8)
+            spine.set_edgecolor("#333333")
 
+    panel_gap = 0.34 if has_long_labels else 0.12
+    left_margin = 0.20 if has_long_labels else 0.14
     fig.subplots_adjust(
-        left=0.16, right=0.98, bottom=0.25, top=0.92, wspace=0.42,
+        left=left_margin, right=0.98, bottom=0.30, top=0.91, wspace=panel_gap,
     )
     fig.savefig(PDF_PATH, bbox_inches="tight")
     fig.savefig(PNG_PATH, dpi=240, bbox_inches="tight")
