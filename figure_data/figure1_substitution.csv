@@ -1,0 +1,37 @@
+panel,role,metric,k,value,variant,source,preset
+LZW hyper-token,output,first,2,0.8686,raw final embedding,results/v064.json,v064
+LZW hyper-token,output,last,2,0.1403,raw final embedding,results/v064.json,v064
+LZW hyper-token,output,ratio,2,6.19,raw final embedding,results/v064.json,v064
+LZW hyper-token,output,first,3,0.8309,raw final embedding,results/v064.json,v064
+LZW hyper-token,output,last,3,0.0563,raw final embedding,results/v064.json,v064
+LZW hyper-token,output,ratio,3,14.76,raw final embedding,results/v064.json,v064
+LZW hyper-token,output,first,4,0.8041,raw final embedding,results/v064.json,v064
+LZW hyper-token,output,last,4,0.0381,raw final embedding,results/v064.json,v064
+LZW hyper-token,output,ratio,4,21.12,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,first,2,0.3106,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,last,2,0.565,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,ratio,2,0.55,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,first,3,0.3117,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,last,3,0.3826,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,ratio,3,0.81,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,first,4,0.3055,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,last,4,0.31,raw final embedding,results/v064.json,v064
+LZW hyper-token,input,ratio,4,0.99,raw final embedding,results/v064.json,v064
+BPE base-token,output,first,2,0.8508,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,output,last,2,0.8037,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,output,ratio,2,1.06,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,output,first,3,0.7597,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,output,last,3,0.7555,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,output,ratio,3,1.01,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,output,first,4,0.6618,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,output,last,4,0.7218,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,output,ratio,4,0.92,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,first,2,0.9151,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,last,2,0.9243,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,ratio,2,0.99,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,first,3,0.8673,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,last,3,0.899,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,ratio,3,0.96,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,first,4,0.8288,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,last,4,0.882,raw lookup embedding,results/base.json,v064 base tables
+BPE base-token,input,ratio,4,0.94,raw lookup embedding,results/base.json,v064 base tables

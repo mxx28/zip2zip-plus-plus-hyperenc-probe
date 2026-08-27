@@ -1,0 +1,73 @@
+role,row_index,column_index,row_span,column_span,cosine_similarity,phrase,base_tokens,preset,variant
+output,0,0,"[deep, neural]","[deep, neural]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,0,1,"[deep, neural]","[deep, neural, network]",0.969954,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,0,2,"[deep, neural]","[deep, neural, network, models]",0.933313,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,0,3,"[deep, neural]","[neural, network]",0.307134,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,0,4,"[deep, neural]","[neural, network, models]",0.279224,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,0,5,"[deep, neural]","[network, models]",0.159373,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,1,0,"[deep, neural, network]","[deep, neural]",0.969954,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,1,1,"[deep, neural, network]","[deep, neural, network]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,1,2,"[deep, neural, network]","[deep, neural, network, models]",0.952659,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,1,3,"[deep, neural, network]","[neural, network]",0.325218,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,1,4,"[deep, neural, network]","[neural, network, models]",0.322642,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,1,5,"[deep, neural, network]","[network, models]",0.163834,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,2,0,"[deep, neural, network, models]","[deep, neural]",0.933313,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,2,1,"[deep, neural, network, models]","[deep, neural, network]",0.952659,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,2,2,"[deep, neural, network, models]","[deep, neural, network, models]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,2,3,"[deep, neural, network, models]","[neural, network]",0.269223,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,2,4,"[deep, neural, network, models]","[neural, network, models]",0.334659,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,2,5,"[deep, neural, network, models]","[network, models]",0.214288,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,3,0,"[neural, network]","[deep, neural]",0.307134,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,3,1,"[neural, network]","[deep, neural, network]",0.325218,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,3,2,"[neural, network]","[deep, neural, network, models]",0.269223,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,3,3,"[neural, network]","[neural, network]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,3,4,"[neural, network]","[neural, network, models]",0.929153,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,3,5,"[neural, network]","[network, models]",0.317621,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,4,0,"[neural, network, models]","[deep, neural]",0.279224,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,4,1,"[neural, network, models]","[deep, neural, network]",0.322642,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,4,2,"[neural, network, models]","[deep, neural, network, models]",0.334659,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,4,3,"[neural, network, models]","[neural, network]",0.929153,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,4,4,"[neural, network, models]","[neural, network, models]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,4,5,"[neural, network, models]","[network, models]",0.381636,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,5,0,"[network, models]","[deep, neural]",0.159373,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,5,1,"[network, models]","[deep, neural, network]",0.163834,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,5,2,"[network, models]","[deep, neural, network, models]",0.214288,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,5,3,"[network, models]","[neural, network]",0.317621,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,5,4,"[network, models]","[neural, network, models]",0.381636,deep neural network models,deep | neural | network | models,v064,raw final embedding
+output,5,5,"[network, models]","[network, models]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,0,0,"[deep, neural]","[deep, neural]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,0,1,"[deep, neural]","[deep, neural, network]",0.840811,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,0,2,"[deep, neural]","[deep, neural, network, models]",0.670446,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,0,3,"[deep, neural]","[neural, network]",0.514057,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,0,4,"[deep, neural]","[neural, network, models]",0.373285,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,0,5,"[deep, neural]","[network, models]",0.255538,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,1,0,"[deep, neural, network]","[deep, neural]",0.840811,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,1,1,"[deep, neural, network]","[deep, neural, network]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,1,2,"[deep, neural, network]","[deep, neural, network, models]",0.849316,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,1,3,"[deep, neural, network]","[neural, network]",0.687123,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,1,4,"[deep, neural, network]","[neural, network, models]",0.560266,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,1,5,"[deep, neural, network]","[network, models]",0.363170,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,2,0,"[deep, neural, network, models]","[deep, neural]",0.670446,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,2,1,"[deep, neural, network, models]","[deep, neural, network]",0.849316,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,2,2,"[deep, neural, network, models]","[deep, neural, network, models]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,2,3,"[deep, neural, network, models]","[neural, network]",0.549338,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,2,4,"[deep, neural, network, models]","[neural, network, models]",0.711529,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,2,5,"[deep, neural, network, models]","[network, models]",0.614114,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,3,0,"[neural, network]","[deep, neural]",0.514057,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,3,1,"[neural, network]","[deep, neural, network]",0.687123,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,3,2,"[neural, network]","[deep, neural, network, models]",0.549338,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,3,3,"[neural, network]","[neural, network]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,3,4,"[neural, network]","[neural, network, models]",0.813906,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,3,5,"[neural, network]","[network, models]",0.434701,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,4,0,"[neural, network, models]","[deep, neural]",0.373285,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,4,1,"[neural, network, models]","[deep, neural, network]",0.560266,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,4,2,"[neural, network, models]","[deep, neural, network, models]",0.711529,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,4,3,"[neural, network, models]","[neural, network]",0.813906,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,4,4,"[neural, network, models]","[neural, network, models]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,4,5,"[neural, network, models]","[network, models]",0.676475,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,5,0,"[network, models]","[deep, neural]",0.255538,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,5,1,"[network, models]","[deep, neural, network]",0.363170,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,5,2,"[network, models]","[deep, neural, network, models]",0.614114,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,5,3,"[network, models]","[neural, network]",0.434701,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,5,4,"[network, models]","[neural, network, models]",0.676475,deep neural network models,deep | neural | network | models,v064,raw final embedding
+input,5,5,"[network, models]","[network, models]",1.000000,deep neural network models,deep | neural | network | models,v064,raw final embedding

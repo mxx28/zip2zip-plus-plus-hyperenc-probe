@@ -1,0 +1,73 @@
+role,row_index,column_index,row_span,column_span,cosine_similarity,phrase,base_tokens,preset,variant
+output,0,0,"[It, is]","[It, is]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+output,0,1,"[It, is]","[It, is, a]",0.938421,It is a dog,It | is | a | dog,v064,raw final embedding
+output,0,2,"[It, is]","[It, is, a, dog]",0.883270,It is a dog,It | is | a | dog,v064,raw final embedding
+output,0,3,"[It, is]","[is, a]",0.348916,It is a dog,It | is | a | dog,v064,raw final embedding
+output,0,4,"[It, is]","[is, a, dog]",0.298764,It is a dog,It | is | a | dog,v064,raw final embedding
+output,0,5,"[It, is]","[a, dog]",0.213517,It is a dog,It | is | a | dog,v064,raw final embedding
+output,1,0,"[It, is, a]","[It, is]",0.938421,It is a dog,It | is | a | dog,v064,raw final embedding
+output,1,1,"[It, is, a]","[It, is, a]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+output,1,2,"[It, is, a]","[It, is, a, dog]",0.927127,It is a dog,It | is | a | dog,v064,raw final embedding
+output,1,3,"[It, is, a]","[is, a]",0.403611,It is a dog,It | is | a | dog,v064,raw final embedding
+output,1,4,"[It, is, a]","[is, a, dog]",0.396921,It is a dog,It | is | a | dog,v064,raw final embedding
+output,1,5,"[It, is, a]","[a, dog]",0.237898,It is a dog,It | is | a | dog,v064,raw final embedding
+output,2,0,"[It, is, a, dog]","[It, is]",0.883270,It is a dog,It | is | a | dog,v064,raw final embedding
+output,2,1,"[It, is, a, dog]","[It, is, a]",0.927127,It is a dog,It | is | a | dog,v064,raw final embedding
+output,2,2,"[It, is, a, dog]","[It, is, a, dog]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+output,2,3,"[It, is, a, dog]","[is, a]",0.361218,It is a dog,It | is | a | dog,v064,raw final embedding
+output,2,4,"[It, is, a, dog]","[is, a, dog]",0.437432,It is a dog,It | is | a | dog,v064,raw final embedding
+output,2,5,"[It, is, a, dog]","[a, dog]",0.301815,It is a dog,It | is | a | dog,v064,raw final embedding
+output,3,0,"[is, a]","[It, is]",0.348916,It is a dog,It | is | a | dog,v064,raw final embedding
+output,3,1,"[is, a]","[It, is, a]",0.403611,It is a dog,It | is | a | dog,v064,raw final embedding
+output,3,2,"[is, a]","[It, is, a, dog]",0.361218,It is a dog,It | is | a | dog,v064,raw final embedding
+output,3,3,"[is, a]","[is, a]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+output,3,4,"[is, a]","[is, a, dog]",0.895723,It is a dog,It | is | a | dog,v064,raw final embedding
+output,3,5,"[is, a]","[a, dog]",0.398203,It is a dog,It | is | a | dog,v064,raw final embedding
+output,4,0,"[is, a, dog]","[It, is]",0.298764,It is a dog,It | is | a | dog,v064,raw final embedding
+output,4,1,"[is, a, dog]","[It, is, a]",0.396921,It is a dog,It | is | a | dog,v064,raw final embedding
+output,4,2,"[is, a, dog]","[It, is, a, dog]",0.437432,It is a dog,It | is | a | dog,v064,raw final embedding
+output,4,3,"[is, a, dog]","[is, a]",0.895723,It is a dog,It | is | a | dog,v064,raw final embedding
+output,4,4,"[is, a, dog]","[is, a, dog]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+output,4,5,"[is, a, dog]","[a, dog]",0.520894,It is a dog,It | is | a | dog,v064,raw final embedding
+output,5,0,"[a, dog]","[It, is]",0.213517,It is a dog,It | is | a | dog,v064,raw final embedding
+output,5,1,"[a, dog]","[It, is, a]",0.237898,It is a dog,It | is | a | dog,v064,raw final embedding
+output,5,2,"[a, dog]","[It, is, a, dog]",0.301815,It is a dog,It | is | a | dog,v064,raw final embedding
+output,5,3,"[a, dog]","[is, a]",0.398203,It is a dog,It | is | a | dog,v064,raw final embedding
+output,5,4,"[a, dog]","[is, a, dog]",0.520894,It is a dog,It | is | a | dog,v064,raw final embedding
+output,5,5,"[a, dog]","[a, dog]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+input,0,0,"[It, is]","[It, is]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+input,0,1,"[It, is]","[It, is, a]",0.677628,It is a dog,It | is | a | dog,v064,raw final embedding
+input,0,2,"[It, is]","[It, is, a, dog]",0.484357,It is a dog,It | is | a | dog,v064,raw final embedding
+input,0,3,"[It, is]","[is, a]",0.237944,It is a dog,It | is | a | dog,v064,raw final embedding
+input,0,4,"[It, is]","[is, a, dog]",0.194205,It is a dog,It | is | a | dog,v064,raw final embedding
+input,0,5,"[It, is]","[a, dog]",0.117878,It is a dog,It | is | a | dog,v064,raw final embedding
+input,1,0,"[It, is, a]","[It, is]",0.677628,It is a dog,It | is | a | dog,v064,raw final embedding
+input,1,1,"[It, is, a]","[It, is, a]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+input,1,2,"[It, is, a]","[It, is, a, dog]",0.694642,It is a dog,It | is | a | dog,v064,raw final embedding
+input,1,3,"[It, is, a]","[is, a]",0.654873,It is a dog,It | is | a | dog,v064,raw final embedding
+input,1,4,"[It, is, a]","[is, a, dog]",0.437447,It is a dog,It | is | a | dog,v064,raw final embedding
+input,1,5,"[It, is, a]","[a, dog]",0.234821,It is a dog,It | is | a | dog,v064,raw final embedding
+input,2,0,"[It, is, a, dog]","[It, is]",0.484357,It is a dog,It | is | a | dog,v064,raw final embedding
+input,2,1,"[It, is, a, dog]","[It, is, a]",0.694642,It is a dog,It | is | a | dog,v064,raw final embedding
+input,2,2,"[It, is, a, dog]","[It, is, a, dog]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+input,2,3,"[It, is, a, dog]","[is, a]",0.319653,It is a dog,It | is | a | dog,v064,raw final embedding
+input,2,4,"[It, is, a, dog]","[is, a, dog]",0.714569,It is a dog,It | is | a | dog,v064,raw final embedding
+input,2,5,"[It, is, a, dog]","[a, dog]",0.640602,It is a dog,It | is | a | dog,v064,raw final embedding
+input,3,0,"[is, a]","[It, is]",0.237944,It is a dog,It | is | a | dog,v064,raw final embedding
+input,3,1,"[is, a]","[It, is, a]",0.654873,It is a dog,It | is | a | dog,v064,raw final embedding
+input,3,2,"[is, a]","[It, is, a, dog]",0.319653,It is a dog,It | is | a | dog,v064,raw final embedding
+input,3,3,"[is, a]","[is, a]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+input,3,4,"[is, a]","[is, a, dog]",0.587030,It is a dog,It | is | a | dog,v064,raw final embedding
+input,3,5,"[is, a]","[a, dog]",0.273653,It is a dog,It | is | a | dog,v064,raw final embedding
+input,4,0,"[is, a, dog]","[It, is]",0.194205,It is a dog,It | is | a | dog,v064,raw final embedding
+input,4,1,"[is, a, dog]","[It, is, a]",0.437447,It is a dog,It | is | a | dog,v064,raw final embedding
+input,4,2,"[is, a, dog]","[It, is, a, dog]",0.714569,It is a dog,It | is | a | dog,v064,raw final embedding
+input,4,3,"[is, a, dog]","[is, a]",0.587030,It is a dog,It | is | a | dog,v064,raw final embedding
+input,4,4,"[is, a, dog]","[is, a, dog]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
+input,4,5,"[is, a, dog]","[a, dog]",0.771158,It is a dog,It | is | a | dog,v064,raw final embedding
+input,5,0,"[a, dog]","[It, is]",0.117878,It is a dog,It | is | a | dog,v064,raw final embedding
+input,5,1,"[a, dog]","[It, is, a]",0.234821,It is a dog,It | is | a | dog,v064,raw final embedding
+input,5,2,"[a, dog]","[It, is, a, dog]",0.640602,It is a dog,It | is | a | dog,v064,raw final embedding
+input,5,3,"[a, dog]","[is, a]",0.273653,It is a dog,It | is | a | dog,v064,raw final embedding
+input,5,4,"[a, dog]","[is, a, dog]",0.771158,It is a dog,It | is | a | dog,v064,raw final embedding
+input,5,5,"[a, dog]","[a, dog]",1.000000,It is a dog,It | is | a | dog,v064,raw final embedding
