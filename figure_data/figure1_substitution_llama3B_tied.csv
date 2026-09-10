@@ -1,0 +1,37 @@
+panel,role,metric,k,value,variant,source,preset
+LZW hyper-token,output,first,2,0.2892,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,output,last,2,0.7585,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,output,ratio,2,2.62,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,output,first,3,0.3586,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,output,last,3,0.8574,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,output,ratio,3,2.39,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,output,first,4,0.4076,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,output,last,4,0.8905,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,output,ratio,4,2.18,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,first,2,0.289,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,last,2,0.7586,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,ratio,2,2.62,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,first,3,0.3588,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,last,3,0.8575,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,ratio,3,2.39,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,first,4,0.4079,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,last,4,0.8903,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+LZW hyper-token,input,ratio,4,2.18,raw final embedding,results/llama3B_v064_tied.json,llama3B_v064_tied
+BPE base-token,output,first,2,0.2633,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,output,last,2,0.2619,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,output,ratio,2,0.99,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,output,first,3,0.3554,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,output,last,3,0.3054,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,output,ratio,3,0.86,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,output,first,4,0.4385,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,output,last,4,0.3357,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,output,ratio,4,0.77,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,first,2,0.2633,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,last,2,0.2619,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,ratio,2,0.99,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,first,3,0.3554,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,last,3,0.3054,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,ratio,3,0.86,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,first,4,0.4385,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,last,4,0.3357,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables
+BPE base-token,input,ratio,4,0.77,raw lookup embedding,results/base_llama3B.json,llama3B_v064_tied base tables

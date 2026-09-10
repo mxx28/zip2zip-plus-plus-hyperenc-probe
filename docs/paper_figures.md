@@ -18,21 +18,40 @@ python prepare_figure_data.py --figure 1
 python prepare_figure_data.py --figure 6
 ```
 
+Prepare and render the combined Llama-3.2-3B figure:
+
+```bash
+python prepare_figure_data.py --figure 1 --preset llama3B_untied
+python prepare_figure_data.py --figure 1 --preset llama3B_tied
+python make_paper_fig_llama.py
+```
+
 Render the figures from CSV:
 
 ```bash
 python make_paper_fig.py
+python make_paper_fig_llama.py
 python make_span_similarity_fig.py
 ```
 
 | figure | CSV input | PDF output | PNG output |
 |---|---|---|---|
-| Figure 1 | `figure_data/figure1_substitution.csv` | `paper_fig_untied.pdf` | `paper_fig_untied.png` |
+| Phi hyper-token substitution | `figure_data/figure1_substitution.csv` | `paper_fig_phi_hyper.pdf` | `paper_fig_phi_hyper.png` |
+| Phi base-token substitution | `figure_data/figure1_substitution.csv` | `paper_fig_phi_base.pdf` | `paper_fig_phi_base.png` |
 | Figure 6 | `figure_data/figure6_subspan_similarity.csv` | `paper_fig_subspan_similarity.pdf` | `paper_fig_subspan_similarity.png` |
+| Llama-3.2-3B comparison | `figure_data/figure1_substitution_llama3B_{untied,tied}.csv` | `paper_fig_llama.pdf` | `paper_fig_llama.png` |
 
 `prepare_figure_data.py --figure 1` exports the already committed aggregate
 measurements in `results/v064.json` and `results/base.json`. Figure 1 uses the
 raw final-vector variant, matching the definition of the ratio in the paper.
+
+The Llama-3.2-3B presets read `results/llama3B_v064_{untied,tied}.json` and the
+Llama base-table control `results/base_llama3B.json`
+(`python probe_base.py base_llama3B`). Two series coincide by construction in
+the combined figure: Llama-3.2 ties
+`tok_embeddings` and `lm_head`, so the base-token row is one measurement drawn
+twice, and in the tied-HE run one encoder serves both roles, so its hyper-token
+row is too. All three rows share the same per-column limits for direct comparison.
 
 `prepare_figure_data.py --figure 6` loads the frozen v0.6.4 encoders and
 measures all six contiguous subspans of the four-token span `It is a dog`.
@@ -42,14 +61,15 @@ variant, labels, and full-precision cosine similarities.
 
 ## Copy-ready captions
 
-**Figure 1 — Substitution probe.** Each panel shows the mean cosine distance
-after replacing the first or last constituent of a span. Top row: LZW
-hyper-token embeddings from the v0.6.4 model; bottom row: raw BPE base-token
-embeddings. The right column reports their ratio
-`r_K = d_first / d_last`. The output hyper-encoder is
-strongly prefix-aligned, with the asymmetry increasing with span length
-`r_4 = 21.1`; the input hyper-encoder is near-balanced at `K = 4`, and neither
-base embedding table exhibits positional asymmetry `r_K ≈ 1`.
+**Substitution probe.** Prefix and suffix panels report the mean cosine
+similarity between an original embedding and the same embedding after replacing
+its first or last constituent. The ratio panel reports
+`r_K = cos_last / cos_first`: values above one are prefix-aligned, values below
+one are suffix-aligned, and values near one are balanced. For Phi v0.6.4, the
+output hyper-encoder is strongly prefix-aligned (`r_4 = 4.91`), while the input
+hyper-encoder is balanced (`r_4 = 0.99`). The Phi base-token control is rendered
+as a separate 1x3 figure; the Llama figure stacks untied, tied, and base rows.
+All paper panels use raw embeddings, without ruler removal.
 
 **Figure 6 — Pairwise similarity of contiguous subspans.** For the four-token
 span `It is a dog`, we compute cosine similarity between the embeddings of all

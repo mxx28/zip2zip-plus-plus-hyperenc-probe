@@ -1,0 +1,363 @@
+{
+  "label": "Llama-3.2-3B v0.6.4 (tied HE, residual)",
+  "preset": "llama3B_v064_tied",
+  "residual": true,
+  "data": {
+    "corpus": "Salesforce/wikitext \u00b7 wikitext-2-raw-v1 [train]",
+    "n_tokens": 2435022,
+    "pool": 39087,
+    "n_top": 5000,
+    "n_resample": 6,
+    "seed": 0,
+    "ngram": {
+      "2": {
+        "unique": 669574,
+        "kept": 5000,
+        "min_freq_kept": 37,
+        "max_freq": 17120
+      },
+      "3": {
+        "unique": 1439016,
+        "kept": 5000,
+        "min_freq_kept": 18,
+        "max_freq": 16906
+      },
+      "4": {
+        "unique": 1804397,
+        "kept": 5000,
+        "min_freq_kept": 8,
+        "max_freq": 2660
+      }
+    }
+  },
+  "input": {
+    "ruler_cos_mean": 0.4504,
+    "ruler_cos_min": 0.1762,
+    "ruler_pairwise": 0.2052,
+    "ruler_energy": 0.1983,
+    "tok_cos_mean": 0.2865,
+    "raw_K2": [
+      0.744,
+      0.1288
+    ],
+    "demean_K2": [
+      0.7607,
+      0.1102
+    ],
+    "raw_K3": [
+      0.6867,
+      0.1057,
+      0.1021
+    ],
+    "demean_K3": [
+      0.7393,
+      0.0911,
+      0.0908
+    ],
+    "raw_K4": [
+      0.6681,
+      0.0846,
+      0.1007,
+      0.1044
+    ],
+    "demean_K4": [
+      0.7411,
+      0.0747,
+      0.0954,
+      0.0997
+    ],
+    "minpair": {
+      "2": {
+        "demean": {
+          "first": 0.207,
+          "last": 0.7146,
+          "ratio": 3.45
+        },
+        "raw": {
+          "first": 0.289,
+          "last": 0.7586,
+          "ratio": 2.62
+        }
+      },
+      "3": {
+        "demean": {
+          "first": 0.2134,
+          "last": 0.8128,
+          "ratio": 3.81
+        },
+        "raw": {
+          "first": 0.3588,
+          "last": 0.8575,
+          "ratio": 2.39
+        }
+      },
+      "4": {
+        "demean": {
+          "first": 0.2382,
+          "last": 0.8474,
+          "ratio": 3.56
+        },
+        "raw": {
+          "first": 0.4079,
+          "last": 0.8903,
+          "ratio": 2.18
+        }
+      }
+    },
+    "nested": [
+      {
+        "text": "It is a dog",
+        "tokens": [
+          "It",
+          " is",
+          " a",
+          " dog"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.876,
+          "cos_H2_H4": 0.787
+        },
+        "demean": {
+          "cos_H2_H3": 0.861,
+          "cos_H2_H4": 0.74
+        }
+      },
+      {
+        "text": " the end of the",
+        "tokens": [
+          " the",
+          " end",
+          " of",
+          " the"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.869,
+          "cos_H2_H4": 0.801
+        },
+        "demean": {
+          "cos_H2_H3": 0.821,
+          "cos_H2_H4": 0.717
+        }
+      },
+      {
+        "text": " in the United States",
+        "tokens": [
+          " in",
+          " the",
+          " United",
+          " States"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.778,
+          "cos_H2_H4": 0.77
+        },
+        "demean": {
+          "cos_H2_H3": 0.742,
+          "cos_H2_H4": 0.727
+        }
+      },
+      {
+        "text": " the rest of the",
+        "tokens": [
+          " the",
+          " rest",
+          " of",
+          " the"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.846,
+          "cos_H2_H4": 0.785
+        },
+        "demean": {
+          "cos_H2_H3": 0.792,
+          "cos_H2_H4": 0.691
+        }
+      },
+      {
+        "text": " for the first time",
+        "tokens": [
+          " for",
+          " the",
+          " first",
+          " time"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.79,
+          "cos_H2_H4": 0.749
+        },
+        "demean": {
+          "cos_H2_H3": 0.748,
+          "cos_H2_H4": 0.676
+        }
+      }
+    ]
+  },
+  "output": {
+    "ruler_cos_mean": 0.4504,
+    "ruler_cos_min": 0.1762,
+    "ruler_pairwise": 0.2115,
+    "ruler_energy": 0.1983,
+    "tok_cos_mean": 0.2865,
+    "raw_K2": [
+      0.744,
+      0.1288
+    ],
+    "demean_K2": [
+      0.7607,
+      0.1102
+    ],
+    "raw_K3": [
+      0.6867,
+      0.1057,
+      0.1021
+    ],
+    "demean_K3": [
+      0.7393,
+      0.0911,
+      0.0908
+    ],
+    "raw_K4": [
+      0.6681,
+      0.0846,
+      0.1007,
+      0.1044
+    ],
+    "demean_K4": [
+      0.7411,
+      0.0747,
+      0.0954,
+      0.0997
+    ],
+    "minpair": {
+      "2": {
+        "demean": {
+          "first": 0.2072,
+          "last": 0.7145,
+          "ratio": 3.45
+        },
+        "raw": {
+          "first": 0.2892,
+          "last": 0.7585,
+          "ratio": 2.62
+        }
+      },
+      "3": {
+        "demean": {
+          "first": 0.2132,
+          "last": 0.8126,
+          "ratio": 3.81
+        },
+        "raw": {
+          "first": 0.3586,
+          "last": 0.8574,
+          "ratio": 2.39
+        }
+      },
+      "4": {
+        "demean": {
+          "first": 0.2378,
+          "last": 0.8477,
+          "ratio": 3.56
+        },
+        "raw": {
+          "first": 0.4076,
+          "last": 0.8905,
+          "ratio": 2.18
+        }
+      }
+    },
+    "nested": [
+      {
+        "text": "It is a dog",
+        "tokens": [
+          "It",
+          " is",
+          " a",
+          " dog"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.876,
+          "cos_H2_H4": 0.787
+        },
+        "demean": {
+          "cos_H2_H3": 0.861,
+          "cos_H2_H4": 0.74
+        }
+      },
+      {
+        "text": " the end of the",
+        "tokens": [
+          " the",
+          " end",
+          " of",
+          " the"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.869,
+          "cos_H2_H4": 0.801
+        },
+        "demean": {
+          "cos_H2_H3": 0.821,
+          "cos_H2_H4": 0.717
+        }
+      },
+      {
+        "text": " in the United States",
+        "tokens": [
+          " in",
+          " the",
+          " United",
+          " States"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.778,
+          "cos_H2_H4": 0.77
+        },
+        "demean": {
+          "cos_H2_H3": 0.742,
+          "cos_H2_H4": 0.727
+        }
+      },
+      {
+        "text": " the rest of the",
+        "tokens": [
+          " the",
+          " rest",
+          " of",
+          " the"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.846,
+          "cos_H2_H4": 0.785
+        },
+        "demean": {
+          "cos_H2_H3": 0.792,
+          "cos_H2_H4": 0.691
+        }
+      },
+      {
+        "text": " for the first time",
+        "tokens": [
+          " for",
+          " the",
+          " first",
+          " time"
+        ],
+        "raw": {
+          "cos_H2_H3": 0.79,
+          "cos_H2_H4": 0.749
+        },
+        "demean": {
+          "cos_H2_H3": 0.748,
+          "cos_H2_H4": 0.676
+        }
+      }
+    ]
+  },
+  "rand_input_ruler": 0.748,
+  "rand_output_ruler": 0.762,
+  "firsttok_input_ruler": 0.323,
+  "firsttok_output_ruler": 0.323,
+  "matched_init_input": 0.323,
+  "matched_init_output": 0.323
+}

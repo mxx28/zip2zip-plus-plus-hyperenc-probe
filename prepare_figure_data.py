@@ -18,6 +18,21 @@ DATA_DIR = os.path.join(HERE, "figure_data")
 FIGURE1_CSV = os.path.join(DATA_DIR, "figure1_substitution.csv")
 FIGURE6_CSV = os.path.join(DATA_DIR, "figure6_subspan_similarity.csv")
 
+# Figure 1 presets: name -> (hyper results tag, base-table results tag, CSV path).
+# The base tag must come from the same base model as the hyper tag: Llama-3.2
+# ties tok_embeddings and lm_head, so its two base-table series coincide.
+FIGURE1_PRESETS = {
+    "v064": ("v064", "base", FIGURE1_CSV),
+    "llama3B_untied": (
+        "llama3B_v064_untied", "base_llama3B",
+        os.path.join(DATA_DIR, "figure1_substitution_llama3B_untied.csv"),
+    ),
+    "llama3B_tied": (
+        "llama3B_v064_tied", "base_llama3B",
+        os.path.join(DATA_DIR, "figure1_substitution_llama3B_tied.csv"),
+    ),
+}
+
 
 def write_rows(path, fieldnames, rows):
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -28,11 +43,12 @@ def write_rows(path, fieldnames, rows):
     print(f"wrote {os.path.relpath(path, HERE)} ({len(rows)} rows)")
 
 
-def prepare_figure1():
+def prepare_figure1(preset="v064"):
     """Export the raw-vector substitution measurements used by Figure 1."""
-    with open(os.path.join(HERE, "results", "v064.json"), encoding="utf-8") as f:
+    hyper_tag, base_tag, csv_path = FIGURE1_PRESETS[preset]
+    with open(os.path.join(HERE, "results", f"{hyper_tag}.json"), encoding="utf-8") as f:
         hyper = json.load(f)
-    with open(os.path.join(HERE, "results", "base.json"), encoding="utf-8") as f:
+    with open(os.path.join(HERE, "results", f"{base_tag}.json"), encoding="utf-8") as f:
         base = json.load(f)
 
     rows = []
@@ -47,7 +63,7 @@ def prepare_figure1():
                     "k": k,
                     "value": values[metric],
                     "variant": "raw final embedding",
-                    "source": "results/v064.json",
+                    "source": f"results/{hyper_tag}.json",
                     "preset": hyper["preset"],
                 })
 
@@ -66,12 +82,12 @@ def prepare_figure1():
                     "k": k,
                     "value": values[metric],
                     "variant": "raw lookup embedding",
-                    "source": "results/base.json",
-                    "preset": "v064 base tables",
+                    "source": f"results/{base_tag}.json",
+                    "preset": f"{hyper_tag} base tables",
                 })
 
     write_rows(
-        FIGURE1_CSV,
+        csv_path,
         ["panel", "role", "metric", "k", "value", "variant", "source", "preset"],
         rows,
     )
@@ -155,9 +171,15 @@ def main():
         default="all",
         help="which paper figure data to prepare (default: all)",
     )
+    parser.add_argument(
+        "--preset",
+        choices=tuple(FIGURE1_PRESETS),
+        default="v064",
+        help="which checkpoint's Figure 1 data to prepare (default: v064)",
+    )
     args = parser.parse_args()
     if args.figure in ("1", "all"):
-        prepare_figure1()
+        prepare_figure1(args.preset)
     if args.figure in ("6", "all"):
         prepare_figure6()
 

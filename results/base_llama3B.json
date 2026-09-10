@@ -1,0 +1,156 @@
+{
+  "n_decomp": {
+    "2": 127156,
+    "3": 122869,
+    "4": 107500
+  },
+  "lm_head (output space)": {
+    "2": {
+      "n": 127156,
+      "ruler_cos_mean": 0.3878,
+      "perpiece_raw": [
+        0.1872,
+        0.1834
+      ],
+      "perpiece_demean": [
+        0.1675,
+        0.1299
+      ],
+      "minpair_raw": {
+        "first": 0.2633,
+        "last": 0.2619,
+        "ratio": 0.99
+      },
+      "minpair_demean": {
+        "first": 0.1367,
+        "last": 0.1344,
+        "ratio": 0.98
+      }
+    },
+    "3": {
+      "n": 122869,
+      "ruler_cos_mean": 0.3908,
+      "perpiece_raw": [
+        0.039,
+        0.0468,
+        0.0661
+      ],
+      "perpiece_demean": [
+        0.0691,
+        0.0301,
+        0.047
+      ],
+      "minpair_raw": {
+        "first": 0.3554,
+        "last": 0.3054,
+        "ratio": 0.86
+      },
+      "minpair_demean": {
+        "first": 0.2473,
+        "last": 0.192,
+        "ratio": 0.78
+      }
+    },
+    "4": {
+      "n": 107500,
+      "ruler_cos_mean": 0.3958,
+      "perpiece_raw": [
+        -0.0322,
+        0.0172,
+        0.0144,
+        0.0236
+      ],
+      "perpiece_demean": [
+        0.0333,
+        0.0187,
+        0.011,
+        0.0236
+      ],
+      "minpair_raw": {
+        "first": 0.4385,
+        "last": 0.3357,
+        "ratio": 0.77
+      },
+      "minpair_demean": {
+        "first": 0.3412,
+        "last": 0.2326,
+        "ratio": 0.68
+      }
+    }
+  },
+  "tok_emb (input space)": {
+    "2": {
+      "n": 127156,
+      "ruler_cos_mean": 0.3878,
+      "perpiece_raw": [
+        0.1872,
+        0.1834
+      ],
+      "perpiece_demean": [
+        0.1675,
+        0.1299
+      ],
+      "minpair_raw": {
+        "first": 0.2633,
+        "last": 0.2619,
+        "ratio": 0.99
+      },
+      "minpair_demean": {
+        "first": 0.1367,
+        "last": 0.1344,
+        "ratio": 0.98
+      }
+    },
+    "3": {
+      "n": 122869,
+      "ruler_cos_mean": 0.3908,
+      "perpiece_raw": [
+        0.039,
+        0.0468,
+        0.0661
+      ],
+      "perpiece_demean": [
+        0.0691,
+        0.0301,
+        0.047
+      ],
+      "minpair_raw": {
+        "first": 0.3554,
+        "last": 0.3054,
+        "ratio": 0.86
+      },
+      "minpair_demean": {
+        "first": 0.2473,
+        "last": 0.192,
+        "ratio": 0.78
+      }
+    },
+    "4": {
+      "n": 107500,
+      "ruler_cos_mean": 0.3958,
+      "perpiece_raw": [
+        -0.0322,
+        0.0172,
+        0.0144,
+        0.0236
+      ],
+      "perpiece_demean": [
+        0.0333,
+        0.0187,
+        0.011,
+        0.0236
+      ],
+      "minpair_raw": {
+        "first": 0.4385,
+        "last": 0.3357,
+        "ratio": 0.77
+      },
+      "minpair_demean": {
+        "first": 0.3412,
+        "last": 0.2326,
+        "ratio": 0.68
+      }
+    }
+  },
+  "nested_examples": []
+}
