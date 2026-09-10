@@ -43,23 +43,23 @@ Same objects as the base-token control (`probe_base.py`) — every base token `T
 | lm_head (output space) | 0.3537 | 0.4658 | 0.5609 |
 | tok_emb (input space) | 0.5453 | 0.5975 | 0.6587 |
 
-## ④ Substitution probe: replace first vs last piece (cosine distance)
+## ④ Substitution probe: replace first vs last piece (cosine similarity)
 
-Same pairs as `base.md`, but distance is between encoder vectors. `first/last > 1` = prefix-dominated.
+Same pairs as `base.md`, but cosine similarity is measured between encoder vectors. `cos_last/cos_first > 1` = prefix-dominated.
 
 **④a raw**
 
-| table | K2 first/last | K3 first/last | K4 first/last | K2 ratio | K3 ratio | K4 ratio |
+| table | K2 cos_first/cos_last | K3 cos_first/cos_last | K4 cos_first/cos_last | K2 ratio | K3 ratio | K4 ratio |
 |---|--:|--:|--:|--:|--:|--:|
-| lm_head (output space) | 0.78/0.05 | 0.67/0.02 | 0.60/0.02 | **15.87×** | **29.97×** | **31.44×** |
-| tok_emb (input space) | 0.29/0.38 | 0.24/0.25 | 0.21/0.20 | **0.76×** | **0.97×** | **1.01×** |
+| lm_head (output space) | 0.23/0.95 | 0.34/0.98 | 0.41/0.98 | **4.18×** | **2.86×** | **2.39×** |
+| tok_emb (input space) | 0.72/0.63 | 0.76/0.75 | 0.80/0.80 | **0.88×** | **0.99×** | **1.0×** |
 
 **④b after ruler removal**
 
-| table | K2 first/last | K3 first/last | K4 first/last | K2 ratio | K3 ratio | K4 ratio |
+| table | K2 cos_first/cos_last | K3 cos_first/cos_last | K4 cos_first/cos_last | K2 ratio | K3 ratio | K4 ratio |
 |---|--:|--:|--:|--:|--:|--:|
-| lm_head (output space) | 0.89/0.06 | 0.86/0.03 | 0.84/0.03 | **15.4×** | **28.27×** | **24.12×** |
-| tok_emb (input space) | 0.42/0.53 | 0.39/0.39 | 0.38/0.38 | **0.78×** | **0.99×** | **1.0×** |
+| lm_head (output space) | 0.12/0.94 | 0.15/0.97 | 0.17/0.97 | **8.1×** | **6.33×** | **5.67×** |
+| tok_emb (input space) | 0.59/0.47 | 0.62/0.61 | 0.62/0.62 | **0.81×** | **0.99×** | **1.0×** |
 
 ---
 

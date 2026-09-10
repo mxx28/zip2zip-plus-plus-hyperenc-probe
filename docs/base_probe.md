@@ -95,7 +95,8 @@ here.
   in exactly one position —
   - *change-first*: share pieces `p2..pK`, differ in `p1`;
   - *change-last*: share pieces `p1..p(K-1)`, differ in `pK`;
-  measure cosine distance. `first/last > 1` = the first piece matters more. Uses
+  measure cosine similarity. The paper ratio is `cos_last / cos_first`; values
+  above one are prefix-aligned. Uses
   **all** disjoint such pairs (counts in the table above), so it is
   deterministic — no sampling.
 
@@ -107,53 +108,25 @@ here.
 
 ## Result and how to read it
 
-The base embedding table shows **no first-piece dominance at any K** — the
-effect is encoder-specific. The key quantity is the **minimal-pair first/last
-ratio** (ruler-robust, so it compares cleanly across every column); output space
-(`lm_head`) then input space (`tok_emb`), each with the raw base table vs the
-residual-on (v0.6.4) and residual-off (vx0.6.4.2) hyper-encoders.
+The paper quantity is `r_K = cos_last / cos_first`, computed from raw cosine
+similarities. Values above one are prefix-aligned, below one are suffix-aligned,
+and near one are balanced.
 
-**④ substitution first/last ratio (prefix-dominance), per K**
+| K | base `lm_head` | v0.6.4 output | base `tok_emb` | v0.6.4 input |
+|---|--:|--:|--:|--:|
+| 2 | **1.27×** | 6.54× | **0.87×** | 0.63× |
+| 3 | **1.00×** | 5.58× | **0.75×** | 0.90× |
+| 4 | **0.82×** | 4.91× | **0.69×** | 0.99× |
 
-| K | base `lm_head` | v0.6.4 out | vx0.6.4.2 out | base `tok_emb` | v0.6.4 in | vx0.6.4.2 in |
-|---|--:|--:|--:|--:|--:|--:|
-| 2 | **1.06×** | 6.42×  | 1.94× | **0.99×** | 0.54× | 0.75× |
-| 3 | **1.01×** | 16.58× | 3.84× | **0.97×** | 0.80× | 0.40× |
-| 4 | **0.91×** | 24.87× | 3.81× | **0.94×** | 0.98× | 0.31× |
-
-**① first-piece cosine (pos1), per K** — raw.
-
-| K | base `lm_head` | v0.6.4 out | vx0.6.4.2 out† | base `tok_emb` | v0.6.4 in | vx0.6.4.2 in |
-|---|--:|--:|--:|--:|--:|--:|
-| 2 | **0.25** | 0.90 | 0.01† | **0.09** | 0.48 | 0.08 |
-| 3 | **0.12** | 0.87 | 0.01† | **0.04** | 0.49 | 0.04 |
-| 4 | **0.07** | 0.86 | 0.01† | **0.02** | 0.50 | 0.04 |
-
-† vx0.6.4.2's output collapses onto a shared ruler (cos-with-mean 0.9988), so its
-*raw* per-piece cosine is ≈0 (dominated by the ruler direction, **not** evidence
-that it ignores the pieces); after ruler removal the first-piece cosine is 0.30 /
-0.27 / 0.25 for K=2/3/4. The ④ ratio is ruler-robust (raw 1.94× ≈ demean 1.93× at
-K=2), which is why ④ — not raw ① — is the honest cross-checkpoint comparison.
-
-**Reading it:**
-- **Base table: flat at every K.** Changing the first vs last piece moves a base
-  embedding essentially equally (0.91×–1.06×), and if anything the ratio *drifts
-  below 1* as K grows — the raw embedding space never prefers the first piece.
-- **The hyper-encoder creates the prefix geometry, and the residual amplifies it
-  with K.** v0.6.4 output climbs 6.42× → 16.58× → 24.87× as K grows; strip the
-  residual (vx0.6.4.2) and it flattens to a mild, roughly K-independent ~2–4×.
-  So a *real, learned* head-reading (~2–4×) survives, but the dramatic
-  K-scaling is a residual/initialization effect, not learned structure.
-- **The input side is never prefix-dominated** (≤1× everywhere); without the
-  residual it becomes increasingly *tail*-weighted as K grows (0.75× → 0.40× →
-  0.31×).
+The raw base-token table is not strongly prefix-aligned, whereas the v0.6.4
+output hyper-encoder is. The input hyper-encoder approaches a balanced
+representation as K increases.
 
 ### Caveats
 - A base embedding is a free lookup, not composed by an encoder — so the
   ruler/residual notions map only loosely; ② is context, not a claim.
-- change-first / change-last pairs share only K−1 of K pieces, so both distances
-  are large (near-orthogonal) — the informative quantity is the *ratio*, not the
-  absolute distance.
+- change-first / change-last pairs share only K−1 of K pieces, so both similarities may be small; interpret the ratio
+  together with the absolute cosine similarities.
 - Base pieces are sub-word BPE units (often 1–2 chars) while hyper pieces are
   whole base tokens; the analogy is *structural* (ordered composition), not
   semantic.
@@ -163,7 +136,7 @@ K=2), which is why ④ — not raw ① — is the honest cross-checkpoint compar
 ```bash
 cd zip2zip-core
 HF_HOME=/dlabscratch1/gentilin/.cache/huggingface \
-  uv run python /dlabscratch1/xinma/hyperenc_probe/probe_base.py
+  uv run python /dlabscratch1/xinma/zip2zip-hyperenc_probe/probe_base.py
 ```
 → writes `results/base.json` and `reports/base.md` (includes the side-by-side
 with the v0.6.4 hyper-token K=2 numbers).

@@ -14,14 +14,14 @@
         0.0428
       ],
       "minpair_raw": {
-        "first": 0.78,
-        "last": 0.0492,
-        "ratio": 15.87
+        "first": 0.2278,
+        "last": 0.9515,
+        "ratio": 4.18
       },
       "minpair_demean": {
-        "first": 0.8925,
-        "last": 0.0579,
-        "ratio": 15.4
+        "first": 0.1164,
+        "last": 0.9428,
+        "ratio": 8.1
       }
     },
     "3": {
@@ -38,14 +38,14 @@
         0.0393
       ],
       "minpair_raw": {
-        "first": 0.6657,
-        "last": 0.0222,
-        "ratio": 29.97
+        "first": 0.3414,
+        "last": 0.978,
+        "ratio": 2.86
       },
       "minpair_demean": {
-        "first": 0.8551,
-        "last": 0.0302,
-        "ratio": 28.27
+        "first": 0.1532,
+        "last": 0.97,
+        "ratio": 6.33
       }
     },
     "4": {
@@ -64,14 +64,14 @@
         0.0338
       ],
       "minpair_raw": {
-        "first": 0.5957,
-        "last": 0.0189,
-        "ratio": 31.44
+        "first": 0.41,
+        "last": 0.9811,
+        "ratio": 2.39
       },
       "minpair_demean": {
-        "first": 0.8358,
-        "last": 0.0347,
-        "ratio": 24.12
+        "first": 0.1703,
+        "last": 0.9655,
+        "ratio": 5.67
       }
     }
   },
@@ -88,14 +88,14 @@
         0.1502
       ],
       "minpair_raw": {
-        "first": 0.2875,
-        "last": 0.3771,
-        "ratio": 0.76
+        "first": 0.7151,
+        "last": 0.6268,
+        "ratio": 0.88
       },
       "minpair_demean": {
-        "first": 0.4176,
-        "last": 0.5323,
-        "ratio": 0.78
+        "first": 0.5861,
+        "last": 0.473,
+        "ratio": 0.81
       }
     },
     "3": {
@@ -112,13 +112,13 @@
         0.147
       ],
       "minpair_raw": {
-        "first": 0.2405,
-        "last": 0.2487,
-        "ratio": 0.97
+        "first": 0.7616,
+        "last": 0.7533,
+        "ratio": 0.99
       },
       "minpair_demean": {
-        "first": 0.3873,
-        "last": 0.3916,
+        "first": 0.6161,
+        "last": 0.6114,
         "ratio": 0.99
       }
     },
@@ -138,13 +138,13 @@
         0.1421
       ],
       "minpair_raw": {
-        "first": 0.206,
-        "last": 0.2041,
-        "ratio": 1.01
+        "first": 0.7954,
+        "last": 0.7968,
+        "ratio": 1.0
       },
       "minpair_demean": {
-        "first": 0.3799,
-        "last": 0.3817,
+        "first": 0.6224,
+        "last": 0.6199,
         "ratio": 1.0
       }
     }

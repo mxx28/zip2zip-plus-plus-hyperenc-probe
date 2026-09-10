@@ -21,8 +21,8 @@ COMPOSED token emb[T] only (not the reference piece); for ④ from both members
 of the pair (both are composed tokens). Minimal pairs use ALL disjoint
 same-(K-1)-pieces vocab pairs — fully deterministic, no sampling.
 
-Compares side-by-side with the v0.6.4 / vx0.6.4.2 hyper-token numbers per K
-(results/v064.json, results/vx0642.json).
+Compares side-by-side with the v0.6.4 hyper-token numbers per K
+(`results/v064.json`).
 """
 import sys, os, json
 import torch, torch.nn.functional as F
@@ -32,7 +32,20 @@ from transformers import AutoTokenizer
 os.environ.setdefault("HF_HOME", "/dlabscratch1/gentilin/.cache/huggingface")
 KS = (2, 3, 4)
 
-tok = AutoTokenizer.from_pretrained("microsoft/Phi-3.5-mini-instruct")
+# ---- presets: name -> (tokenizer, weights_file, hyper results to compare against) ----
+# The base tables live in the checkpoint's extracted weights, so the tokenizer
+# and the weights file must come from the SAME model: a decomposition computed
+# with one tokenizer indexes meaningless rows of the other's table.
+PRESETS = {
+    "base":         ("microsoft/Phi-3.5-mini-instruct", "encoders_v064.pt",
+                     {"v0.6.4": "v064"}),
+    "base_llama3B": ("meta-llama/Llama-3.2-3B-Instruct", "encoders_llama3B_v064_untied.pt",
+                     {"untied HE": "llama3B_v064_untied", "tied HE": "llama3B_v064_tied"}),
+}
+RUN = sys.argv[1] if len(sys.argv) > 1 else "base"
+TOK_NAME, WEIGHTS_FILE, HYP_TAGS = PRESETS[RUN]
+
+tok = AutoTokenizer.from_pretrained(TOK_NAME)
 vocab = tok.get_vocab()                     # str -> id
 SPECIAL = set(tok.all_special_ids)
 merges = json.loads(tok.backend_tokenizer.to_str())["model"]["merges"]
@@ -83,9 +96,10 @@ for K in KS:
 
 def all_disjoint_pairs(groups):
     """All disjoint adjacent (v[0],v[1]),(v[2],v[3]),... pairs across groups of
-    size >= 2. Deterministic (group + insertion order); every token used once."""
+    size >= 2. Deterministic (sorted group keys and token ids); every token used once."""
     out = []
-    for v in groups.values():
+    for key in sorted(groups):
+        v = sorted(groups[key])
         for i in range(0, len(v) - 1, 2):
             out.append((v[i], v[i + 1]))
     return out
@@ -113,7 +127,7 @@ for K in KS:
     print(f"K={K}: change-first pairs={len(df)}  change-last pairs={len(dl)}", flush=True)
 
 # embedding tables from the v0.6.4 checkpoint (base tables are ~frozen across runs)
-sd = torch.load(f"{HERE}/weights/encoders_v064.pt", map_location="cpu", weights_only=True)
+sd = torch.load(f"{HERE}/weights/{WEIGHTS_FILE}", map_location="cpu", weights_only=True)
 TABLES = {"lm_head (output space)": sd["output.weight"],
           "tok_emb (input space)": sd["tok_embeddings.weight"]}
 
@@ -133,15 +147,20 @@ def analyze(emb):
                                       for i in range(K)]
         # ④ substitution probe: raw + demean (ruler subtracted from both members, as in the hyper probe).
         for view, sub in (("raw", False), ("demean", True)):
-            def dist(a, b):
+            def similarity(a, b):
                 ea, eb = emb[a], emb[b]
                 if sub:
                     ea, eb = ea - c, eb - c
-                return (1 - F.cosine_similarity(ea, eb, dim=-1)).mean().item()
-            df = dist(d["df_a"], d["df_b"])       # change first
-            dl = dist(d["dl_a"], d["dl_b"])       # change last
-            rk[f"minpair_{view}"] = {"first": round(df, 4), "last": round(dl, 4),
-                                     "ratio": round(df / max(dl, 1e-9), 2)}
+                return F.cosine_similarity(ea, eb, dim=-1).mean().item()
+            first = similarity(d["df_a"], d["df_b"])
+            last = similarity(d["dl_a"], d["dl_b"])
+            if abs(first) < 1e-12:
+                raise ValueError("prefix-substitution cosine is zero; ratio is undefined")
+            rk[f"minpair_{view}"] = {
+                "first": round(first, 4),
+                "last": round(last, 4),
+                "ratio": round(last / first, 2),
+            }
         R[str(K)] = rk
     return R
 
@@ -170,13 +189,13 @@ for a, b, cc in CHAINS:
     nested_examples.append(row)
 res["nested_examples"] = nested_examples
 os.makedirs(f"{HERE}/results", exist_ok=True)
-json.dump(res, open(f"{HERE}/results/base.json", "w"), indent=2)
+json.dump(res, open(f"{HERE}/results/{RUN}.json", "w"), indent=2)
 
 # hyper-token comparison (per K)
 def load(tag):
     p = f"{HERE}/results/{tag}.json"
     return json.load(open(p)) if os.path.exists(p) else None
-HYP = {"v0.6.4": load("v064"), "vx0.6.4.2": load("vx0642")}
+HYP = {label: load(tag) for label, tag in HYP_TAGS.items()}
 HYP = {k: v for k, v in HYP.items() if v is not None}
 
 LM = "lm_head (output space)"
@@ -224,13 +243,14 @@ def md():
         vals = " | ".join(f"{res[name][str(K)]['ruler_cos_mean']}" for K in KS)
         o.append(f"| {name} | {vals} |")
     o += ["",
-          "## ④ Substitution probe: replace first vs last piece (cosine distance)", "",
+          "## ④ Substitution probe: replace first vs last piece (cosine similarity)", "",
           "change-first = pairs sharing pieces p2..pK, differing in p1. change-last = sharing p1..p(K−1), "
-          "differing in pK. Cells are `change-first/change-last` distances; `first/last > 1` = the first "
-          "piece matters more (prefix-dominated). Same layout as the hyper-token ④ tables.", ""]
+          "differing in pK. Cells are `cos_first/cos_last` similarities. The ratio is "
+          "cos_last / cos_first: > 1 means prefix-aligned, < 1 means suffix-aligned, and "
+          "approximately 1 means balanced. Same layout as the hyper-token ④ tables.", ""]
     for view, variant in (("raw", "④a raw"), ("demean", "④b after ruler removal")):
         o += [f"**{variant}**", "",
-              "| table | K2 first/last | K3 first/last | K4 first/last | K2 ratio | K3 ratio | K4 ratio |",
+              "| table | K2 cos_first/cos_last | K3 cos_first/cos_last | K4 cos_first/cos_last | K2 ratio | K3 ratio | K4 ratio |",
               "|---|--:|--:|--:|--:|--:|--:|"]
         for name in TABLES:
             m = {K: res[name][str(K)][f"minpair_{view}"] for K in KS}
@@ -258,9 +278,10 @@ def md():
 
         o += ["## Side-by-side with hyper-tokens — the money comparison", "",
               "Does the hyper-encoder impose more first-piece dominance than the raw embedding table shows? "
-              "The minimal-pair ratio is ruler-robust, so it compares cleanly across all columns. "
-              "**Bold = base control** (raw table, no encoder) — the reference each encoder column is read against.", "",
-              "**④ substitution first/last ratio (prefix-dominance), per K**", "", head, align]
+              "Paper comparisons use the raw cosine similarities only; ruler-removed diagnostics stay "
+              "available above but are not used in the figure. **Bold = base control** (raw table, "
+              "no encoder) — the reference each encoder column is read against.", "",
+              "**④ substitution cos_last/cos_first ratio, per K**", "", head, align]
 
         def ratio(space, K):
             if space == "out_base": return f"{res[LM][str(K)]['minpair_raw']['ratio']}×"
@@ -284,15 +305,15 @@ def md():
         o += sxs_rows(pp)
         o.append("")
     o += ["---", "",
-          "*Repro: `uv run python probe_base.py`. Data: `results/base.json`. Method: see `docs/base_probe.md`.*"]
+          f"*Repro: `uv run python probe_base.py {RUN}`. Data: `results/{RUN}.json`. Method: see `docs/base_probe.md`.*"]
     return "\n".join(o)
 
 
 os.makedirs(f"{HERE}/reports", exist_ok=True)
-open(f"{HERE}/reports/base.md", "w").write(md())
-print("wrote results/base.json and reports/base.md")
+open(f"{HERE}/reports/{RUN}.md", "w").write(md())
+print(f"wrote results/{RUN}.json and reports/{RUN}.md")
 for name in TABLES:
     for K in KS:
         a = res[name][str(K)]
         print(f"  {name} K{K}: perpiece_raw={a['perpiece_raw']}  "
-              f"minpair first/last raw={a['minpair_raw']['ratio']}x  ruler={a['ruler_cos_mean']}")
+              f"cos_last/cos_first raw={a['minpair_raw']['ratio']}x  ruler={a['ruler_cos_mean']}")

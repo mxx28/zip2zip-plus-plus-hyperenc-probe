@@ -69,37 +69,37 @@
     "minpair": {
       "2": {
         "demean": {
-          "first": 0.3572,
-          "last": 0.665,
-          "ratio": 0.54
+          "first": 0.6428,
+          "last": 0.335,
+          "ratio": 0.52
         },
         "raw": {
-          "first": 0.3106,
-          "last": 0.565,
-          "ratio": 0.55
+          "first": 0.6894,
+          "last": 0.435,
+          "ratio": 0.63
         }
       },
       "3": {
         "demean": {
-          "first": 0.3794,
-          "last": 0.4807,
-          "ratio": 0.79
+          "first": 0.6206,
+          "last": 0.5193,
+          "ratio": 0.84
         },
         "raw": {
-          "first": 0.3117,
-          "last": 0.3826,
-          "ratio": 0.81
+          "first": 0.6883,
+          "last": 0.6174,
+          "ratio": 0.9
         }
       },
       "4": {
         "demean": {
-          "first": 0.3808,
-          "last": 0.3964,
-          "ratio": 0.96
+          "first": 0.6192,
+          "last": 0.6036,
+          "ratio": 0.97
         },
         "raw": {
-          "first": 0.3055,
-          "last": 0.31,
+          "first": 0.6945,
+          "last": 0.69,
           "ratio": 0.99
         }
       }
@@ -231,38 +231,38 @@
     "minpair": {
       "2": {
         "demean": {
-          "first": 0.901,
-          "last": 0.1717,
-          "ratio": 5.25
+          "first": 0.099,
+          "last": 0.8283,
+          "ratio": 8.36
         },
         "raw": {
-          "first": 0.8686,
-          "last": 0.1403,
-          "ratio": 6.19
+          "first": 0.1314,
+          "last": 0.8597,
+          "ratio": 6.54
         }
       },
       "3": {
         "demean": {
-          "first": 0.9036,
-          "last": 0.072,
-          "ratio": 12.55
+          "first": 0.0964,
+          "last": 0.928,
+          "ratio": 9.63
         },
         "raw": {
-          "first": 0.8309,
-          "last": 0.0563,
-          "ratio": 14.76
+          "first": 0.1691,
+          "last": 0.9437,
+          "ratio": 5.58
         }
       },
       "4": {
         "demean": {
-          "first": 0.8874,
-          "last": 0.0497,
-          "ratio": 17.84
+          "first": 0.1126,
+          "last": 0.9503,
+          "ratio": 8.44
         },
         "raw": {
-          "first": 0.8041,
-          "last": 0.0381,
-          "ratio": 21.12
+          "first": 0.1959,
+          "last": 0.9619,
+          "ratio": 4.91
         }
       }
     },

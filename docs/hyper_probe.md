@@ -120,12 +120,13 @@ shared ruler was hiding the signal.
 repeat ①. It reveals
 which position the vector keys on.
 
-**④ Substitution probe — the headline test.** Take a real hyper-token, change
-exactly one base token (the **first** vs the **last**), and measure how much the
-embedding moves (`1 − cos`). If change-first ≫ change-last the vector is
-**prefix-dominated** (reads the head). Reported per K with the first/last ratio, **both** on the raw
-vector (④a) and after ruler removal (④b). (The vector *difference* `E₁−E₂` is
-unchanged by subtracting a constant, but the *cosine* framing is not — hence both.)
+**④ Substitution probe — the headline test.** Take a real hyper-token and change
+exactly one base token (the **first** versus the **last**). Measure the cosine
+similarity between the original and perturbed embeddings: `cos_first` for a first
+replacement and `cos_last` for a last replacement. The paper ratio is
+`r_K = cos_last / cos_first`: `r_K > 1` is prefix-aligned, `r_K < 1` is
+suffix-aligned, and `r_K ≈ 1` is balanced. The diagnostic report retains raw and
+ruler-removed variants, but paper figures use the raw embedding only.
 
 **⑤ Growth probe.** A few (`N = 4`) frequent readable 4-grams,
 e.g. `in the United States`: `H2=[in,the] ⊂ H3=[in,the,United] ⊂
@@ -157,12 +158,12 @@ model code changes.
    (hyper_encoder.\*, hyper_output.\*, tok_embeddings.weight, output.weight) from
    its `model.pt`.
 2. Add a preset in `probe.py` `PRESETS`: `name -> (label, path, residual)` —
-   `residual=False` for `no_encoder_residual` runs (v0.52, vx0.6.4.2, …).
+   `residual=False` for `no_encoder_residual` runs (such as v0.52).
 3. Run from the zip2zip-core uv venv:
    ```bash
    cd zip2zip-core
    HF_HOME=/dlabscratch1/gentilin/.cache/huggingface \
-     uv run python /dlabscratch1/xinma/hyperenc_probe/probe.py <preset>
+     uv run python /dlabscratch1/xinma/zip2zip-hyperenc_probe/probe.py <preset>
    ```
    → writes `results/<preset>.json` and `reports/<preset>.md`.
 

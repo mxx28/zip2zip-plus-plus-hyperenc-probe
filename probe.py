@@ -6,7 +6,7 @@ lm_head) of a single checkpoint, on hyper-tokens sampled from a standard corpus
   ①  raw      per-position cosine of the final vector with each base token
   ②  ruler    shared-vector stats (cos-with-mean, pairwise, energy) + controls
   ③  demean   per-position cosine after subtracting the shared ruler
-  ④  substitution  substitution probe: change first vs last token (cosine distance)
+  ④  substitution  substitution probe: change first vs last token (cosine similarity)
   ⑤  growth   growth probe: growing-prefix examples H2⊂H3⊂H4 similarity (illustrative)
 
 Hyper-tokens (objects analyzed) — see the "Data & objects" section of the
@@ -21,7 +21,7 @@ report for exact counts:
 
 The FINAL vector is the one the model actually uses:
   residual=True  -> E = base_vec[t1] + encoder_out   (v0.5, v0.6.4, ...)
-  residual=False -> E = encoder_out                  (no_encoder_residual: v0.52, vx0.6.4.2)
+  residual=False -> E = encoder_out                  (no_encoder_residual runs such as v0.52)
 
 Outputs: results/<name>.json  and  reports/<name>.md.
 Usage: `uv run python probe.py <preset>`   (one checkpoint per run; compare reports yourself)
@@ -43,23 +43,36 @@ N_RESAMPLE = 6      # ④ random-replacement resamples
 N_EXAMPLES = 4      # ⑤ illustrative nested chains
 
 # ---- presets: name -> (label, weights_file, residual_bool) ----
-# residual=False for no_encoder_residual runs (v0.52, vx0.6.4.2 removes the residual path).
+# residual=False for no_encoder_residual runs such as v0.52.
+# The base model's tokenizer + vocab bound travel with the preset: the corpus
+# n-grams must be tokenized by the SAME tokenizer whose embedding table the
+# encoder reads (a Phi-tokenized n-gram is meaningless ids in Llama space).
+PHI = ("microsoft/Phi-3.5-mini-instruct", 32064)
+LLAMA3 = ("meta-llama/Llama-3.2-3B-Instruct", 128256)
 PRESETS = {
-    "v05":   ("v0.5 (untied, residual)",       f"{W}/encoders_v05.pt",   True),
-    "v052":  ("v0.52 (untied, no-residual)",   f"{W}/encoders_v052.pt",  False),
-    "v064":  ("v0.6.4 (untied, residual)",     f"{W}/encoders_v064.pt",  True),
-    "vx0642": ("vx0.6.4.2 (untied, no-residual)", f"{W}/encoders_vx0642.pt", False),
+    "v05":   ("v0.5 (untied, residual)",       f"{W}/encoders_v05.pt",   True, *PHI),
+    "v052":  ("v0.52 (untied, no-residual)",   f"{W}/encoders_v052.pt",  False, *PHI),
+    "v064":  ("v0.6.4 (untied, residual)",     f"{W}/encoders_v064.pt",  True, *PHI),
+    # Llama-3.2-3B-Instruct v0.6.4 pair (Andrea, 2026-09). Same recipe, single
+    # variable = --untied_hyper_encoder. The base model TIES e_in and e_out, so
+    # in the tied-HE run the input and output roles are literally one function
+    # (its weights file aliases hyper_output to hyper_encoder, so the "output"
+    # half of the report is the same encoder read through output.weight).
+    "llama3B_v064_untied": ("Llama-3.2-3B v0.6.4 (untied HE, residual)",
+                            f"{W}/encoders_llama3B_v064_untied.pt", True, *LLAMA3),
+    "llama3B_v064_tied": ("Llama-3.2-3B v0.6.4 (tied HE, residual)",
+                          f"{W}/encoders_llama3B_v064_tied.pt", True, *LLAMA3),
 }
 RUN = sys.argv[1] if len(sys.argv) > 1 else "v064"
-LABEL, PATH, RESID = PRESETS[RUN]
+LABEL, PATH, RESID, TOK_NAME, VOCAB = PRESETS[RUN]
 
 # ---- build hyper-tokens from WikiText-2-raw-v1 ----
-tok = AutoTokenizer.from_pretrained("microsoft/Phi-3.5-mini-instruct")
+tok = AutoTokenizer.from_pretrained(TOK_NAME)
 DIS = set(tok.all_special_ids) | {tid for ts, tid in tok.get_vocab().items() if re.search(r"[0-9]", ts)}
 
 
 def keep(t):
-    return t < 32064 and t not in DIS
+    return t < VOCAB and t not in DIS
 
 
 def load_corpus():
@@ -174,8 +187,15 @@ def analyze(enc):
         R[f"demean_K{K}"] = [round(F.cosine_similarity(E - c, emb[ids[:, i]], dim=-1).mean().item(), 4) for i in range(K)]
 
     def pack(fs, ls):
-        return {"first": round(float(np.mean(fs)), 4), "last": round(float(np.mean(ls)), 4),
-                "ratio": round(float(np.mean(fs) / max(np.mean(ls), 1e-9)), 2)}
+        first = float(np.mean(fs))
+        last = float(np.mean(ls))
+        if abs(first) < 1e-12:
+            raise ValueError("prefix-substitution cosine is zero; ratio is undefined")
+        return {
+            "first": round(first, 4),
+            "last": round(last, 4),
+            "ratio": round(last / first, 2),
+        }
     # ④ minimal pairs — raw AND ruler-removed (a strong shared ruler is not guaranteed).
     # EA (unperturbed) is constant across resamples → reuse Ebase[K]; only re-encode the perturbed side.
     R["minpair"] = {}
@@ -186,13 +206,13 @@ def analyze(enc):
             b = [e[:] for e in ent]; rp = rng.choice(POOL, size=len(ent))
             for j in range(len(ent)): b[j][0] = int(rp[j])
             EB = emb_of(enc, b, K)
-            dfd.append((1 - F.cosine_similarity(EA - c, EB - c, dim=-1)).mean().item())
-            dfr.append((1 - F.cosine_similarity(EA, EB, dim=-1)).mean().item())
+            dfd.append(F.cosine_similarity(EA - c, EB - c, dim=-1).mean().item())
+            dfr.append(F.cosine_similarity(EA, EB, dim=-1).mean().item())
             b2 = [e[:] for e in ent]; rp2 = rng.choice(POOL, size=len(ent))
             for j in range(len(ent)): b2[j][K-1] = int(rp2[j])
             EB2 = emb_of(enc, b2, K)
-            dld.append((1 - F.cosine_similarity(EA - c, EB2 - c, dim=-1)).mean().item())
-            dlr.append((1 - F.cosine_similarity(EA, EB2, dim=-1)).mean().item())
+            dld.append(F.cosine_similarity(EA - c, EB2 - c, dim=-1).mean().item())
+            dlr.append(F.cosine_similarity(EA, EB2, dim=-1).mean().item())
         R["minpair"][K] = {"demean": pack(dfd, dld), "raw": pack(dfr, dlr)}
 
     # ⑤ nested — several real growing-prefix chains (exact prefix length, no padding)
@@ -247,7 +267,7 @@ def read_role(role):
         collapse = (f" Shared-ruler component is at its matched init baseline (cos-with-mean {rc} vs "
                     f"init {mi}), i.e. **inherited** from the base-embedding geometry, not created by "
                     f"training.")
-    return f"- **{role}**: {pos} (change-first/change-last = {r}× at K=4).{collapse}"
+    return f"- **{role}**: {pos} (cos_last/cos_first = {r}× at K=4).{collapse}"
 
 
 def md():
@@ -304,12 +324,13 @@ def md():
             o.append(f"| {role} · K{K} |{cells}")
     o += ["",
           "## ④ Substitution probe (replace first vs last token)", "",
-          "Change one base token (to a random pool token), measure how much the embedding moves (cosine "
-          "distance). first/last > 1 = prefix-dominated (reads the head); < 1 = tail-weighted. Two "
-          "variants — on the raw vector, and after removing the shared ruler.", ""]
+          "Change one base token (to a random pool token) and measure the cosine similarity between "
+          "the original and perturbed embeddings. The ratio is cos_last / cos_first: > 1 means "
+          "prefix-aligned, < 1 means suffix-aligned, and approximately 1 means balanced. Two "
+          "variants are retained in the diagnostic report; paper figures use the raw vector only.", ""]
     for variant, key in (("raw vector (no ruler removed)", "raw"), ("after ruler removal", "demean")):
         o += [f"**④a {variant}**" if key == "raw" else f"**④b {variant}**", "",
-              "| role | K2 first/last | K3 first/last | K4 first/last | K2 ratio | K3 ratio | K4 ratio |",
+              "| role | K2 cos_first/cos_last | K3 cos_first/cos_last | K4 cos_first/cos_last | K2 ratio | K3 ratio | K4 ratio |",
               "|---|--:|--:|--:|--:|--:|--:|"]
         for role in ("output", "input"):
             mp = res[role]["minpair"]
@@ -341,6 +362,6 @@ open(f"{HERE}/reports/{RUN}.md", "w").write(md())
 print(f"wrote results/{RUN}.json and reports/{RUN}.md")
 for role in ("output", "input"):
     mp = res[role]["minpair"]
-    print(f"  {role}: minpair raw ratio K2/3/4 = "
+    print(f"  {role}: cos_last/cos_first raw ratio K2/3/4 = "
           f"{mp[2]['raw']['ratio']}/{mp[3]['raw']['ratio']}/{mp[4]['raw']['ratio']}x  "
           f"ruler={res[role]['ruler_cos_mean']}")

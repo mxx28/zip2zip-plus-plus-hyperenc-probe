@@ -11,8 +11,8 @@ base control; the ONLY variable is raw-lookup vs encoder. It also replaces the
 main hyper probe's *random*-replacement minimal pairs with these *real*
 shared-piece pairs, matching the base control apples-to-apples.
 
-Runs both checkpoints (v0.6.4 residual-on, vx0.6.4.2 residual-off). Writes one
-report per checkpoint plus a combined three-way summary (base raw vs both).
+Runs the v0.6.4 checkpoint and writes its report plus a controlled comparison
+against the raw base-token lookup table.
 
 Caveat: BPE sub-word pieces (e.g. `ational`) are not the whole-token LZW merges
 the encoder trained on — this is an out-of-distribution probe, read as "the
@@ -29,8 +29,7 @@ from transformers import AutoTokenizer
 os.environ.setdefault("HF_HOME", "/dlabscratch1/gentilin/.cache/huggingface")
 KS = (2, 3, 4)
 W = f"{HERE}/weights"
-CKPTS = [("v064", "v0.6.4 (residual)", f"{W}/encoders_v064.pt", True),
-         ("vx0642", "vx0.6.4.2 (no-residual)", f"{W}/encoders_vx0642.pt", False)]
+CKPTS = [("v064", "v0.6.4 (residual)", f"{W}/encoders_v064.pt", True)]
 
 tok = AutoTokenizer.from_pretrained("microsoft/Phi-3.5-mini-instruct")
 vocab = tok.get_vocab()
@@ -79,7 +78,8 @@ for K in KS:
 
 def all_disjoint_pairs(groups):
     out = []
-    for v in groups.values():
+    for key in sorted(groups):
+        v = sorted(groups[key])
         for i in range(0, len(v) - 1, 2):
             out.append((v[i], v[i + 1]))
     return out
@@ -133,15 +133,20 @@ def analyze(enc, residual):
                                       for i in range(K)]
         # ④ substitution probe on the SAME pairs as base_probe, through the encoder
         for view, sub in (("raw", False), ("demean", True)):
-            def dist(a, b):
+            def similarity(a, b):
                 ea, eb = E[a], E[b]
                 if sub:
                     ea, eb = ea - c, eb - c
-                return (1 - F.cosine_similarity(ea, eb, dim=-1)).mean().item()
-            df = dist(d["cf_a"], d["cf_b"])
-            dl = dist(d["cl_a"], d["cl_b"])
-            rk[f"minpair_{view}"] = {"first": round(df, 4), "last": round(dl, 4),
-                                     "ratio": round(df / max(dl, 1e-9), 2)}
+                return F.cosine_similarity(ea, eb, dim=-1).mean().item()
+            first = similarity(d["cf_a"], d["cf_b"])
+            last = similarity(d["cl_a"], d["cl_b"])
+            if abs(first) < 1e-12:
+                raise ValueError("prefix-substitution cosine is zero; ratio is undefined")
+            rk[f"minpair_{view}"] = {
+                "first": round(first, 4),
+                "last": round(last, 4),
+                "ratio": round(last / first, 2),
+            }
         R[str(K)] = rk
     return R
 
@@ -159,7 +164,7 @@ for tag, label, path, resid in CKPTS:
     for role, _ in ROLES:
         for K in KS:
             a = RES[tag][role][str(K)]
-            print(f"  {role} K{K}: perpiece_raw={a['perpiece_raw']} minpair raw={a['minpair_raw']['ratio']}x "
+            print(f"  {role} K{K}: perpiece_raw={a['perpiece_raw']} cos_last/cos_first raw={a['minpair_raw']['ratio']}x "
                   f"ruler={a['ruler_cos_mean']}", flush=True)
 
 
@@ -187,12 +192,12 @@ def md_single(tag):
     for role, name in ROLES:
         o.append(f"| {name} | " + " | ".join(f"{r[role][str(K)]['ruler_cos_mean']}" for K in KS) + " |")
     o += ["",
-          "## ④ Substitution probe: replace first vs last piece (cosine distance)", "",
-          "Same pairs as `base.md`, but distance is between encoder vectors. `first/last > 1` = "
+          "## ④ Substitution probe: replace first vs last piece (cosine similarity)", "",
+          "Same pairs as `base.md`, but cosine similarity is measured between encoder vectors. `cos_last/cos_first > 1` = "
           "prefix-dominated.", ""]
     for view, variant in (("raw", "④a raw"), ("demean", "④b after ruler removal")):
         o += [f"**{variant}**", "",
-              "| table | K2 first/last | K3 first/last | K4 first/last | K2 ratio | K3 ratio | K4 ratio |",
+              "| table | K2 cos_first/cos_last | K3 cos_first/cos_last | K4 cos_first/cos_last | K2 ratio | K3 ratio | K4 ratio |",
               "|---|--:|--:|--:|--:|--:|--:|"]
         for role, name in ROLES:
             m = {K: r[role][str(K)][f"minpair_{view}"] for K in KS}
@@ -208,7 +213,7 @@ for tag, *_ in CKPTS:
     open(f"{HERE}/reports/base_hyper_{tag}.md", "w").write(md_single(tag))
 
 
-# ---------- combined three-way summary ----------
+# ---------- controlled base-vs-encoder summary ----------
 def md_combined():
     base = json.load(open(f"{HERE}/results/base.json")) if os.path.exists(f"{HERE}/results/base.json") else None
     LM, TE = "lm_head (output space)", "tok_emb (input space)"
@@ -235,19 +240,19 @@ def md_combined():
         return rows
 
     if base:
-        o += block("**④ substitution first/last ratio (prefix-dominance), per K**",
+        o += block("**④ substitution cos_last/cos_first ratio, per K**",
                    lambda name, K: f"{base[name][str(K)]['minpair_raw']['ratio']}×",
                    lambda t, role, K: f"{RES[t][role][str(K)]['minpair_raw']['ratio']}×")
         o += block("**① first-piece cosine (pos1), per K** — raw",
                    lambda name, K: f"{base[name][str(K)]['perpiece_raw'][0]}",
                    lambda t, role, K: f"{RES[t][role][str(K)]['perpiece_raw'][0]}",
-                   note="(hyper output raw ≈0 when a shared ruler dominates — read with ④)")
+                   note="(read together with the substitution ratios)")
     else:
         o += ["_(run `probe_base.py` first to populate the base-lookup columns.)_", ""]
     o += ["---", "", "*Repro: `uv run python probe_base_hyper.py` (after `probe_base.py`). "
-          "Data: `results/base_hyper_{v064,vx0642}.json`, `results/base.json`.*"]
+          "Data: `results/base_hyper_v064.json`, `results/base.json`.*"]
     return "\n".join(o)
 
 
 open(f"{HERE}/reports/base_hyper.md", "w").write(md_combined())
-print("\nwrote reports/base_hyper_v064.md, reports/base_hyper_vx0642.md, reports/base_hyper.md")
+print("\nwrote reports/base_hyper_v064.md, reports/base_hyper.md")

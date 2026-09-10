@@ -40,8 +40,7 @@ HF_HOME=/dlabscratch1/gentilin/.cache/huggingface \
 ```
 
 `probe.py` reads WikiText-2-raw-v1 (`datasets`); it defaults `HF_DATASETS_CACHE`
-to a writable path internally, so no extra env is needed. Presets in `probe.py`:
-`v05`, `v052`, `v064`, `vx0642` (weights present). See each method doc for how to
+to a writable path internally, so no extra env is needed. Presets in `probe.py` include the Phi runs `v05`, `v052`, `v064` and the two Llama-3.2-3B v0.6.4 runs. See each method doc for how to
 extract weights, add a preset, and read the tables.
 
 ## Paper figures
@@ -50,33 +49,8 @@ Paper plots follow a CSV-first workflow: `prepare_figure_data.py` writes the fig
 
 ## Headline finding so far
 
-### Hyper-token embedding:
-
-The two encoders learn **opposite** geometries, and the residual path decides
-how much. Comparing v0.6.4 (residual on) against its ablation vx0.6.4.2
-(residual path removed):
-
-Numbers below are on **WikiText-2-raw-v1** hyper-tokens (top-5000 frequent
-K-grams per K), ④ ratios after ruler removal at K=4.
-
-- **Output (unembedding) reads the head.** It is prefix-dominated — changing a
-  hyper-token's *first* base token moves `E_out` far more than changing its last
-  (**17.8× at K=4** in v0.6.4, growing with K: 5.3× → 12.6× → 17.8×). Removing the
-  residual shrinks this to **~3.7×** but does not kill it: the head-reading is
-  **real and learned, only amplified by the residual**, not created by it.
-
-- **Input (embedding) keys on the opposite end.** With the residual it is roughly
-  balanced (**0.96×**); remove it and the input flips to **tail-weighted
-  (0.37×)** — the two roles key on opposite ends of the merged span.
-
-- **The residual is what prevents collapse.** With it, each vector is anchored to
-  its own first base token and there is **no shared ruler** (cos-with-mean 0.39,
-  *below* the random-init baseline 0.64 — more spread out than an untrained
-  encoder). Remove it and the output collapses almost entirely onto **one shared
-  direction (0.9986)**, well above random-init — a learned, per-merge-
-  uninformative ruler; the real per-merge signal survives only after subtracting it.
-
-### Base token embedding:
-
-The base-token control shows the raw embedding table has **no** such first-piece
-dominance (~1×), so this geometry is **encoder-created, not BPE-inherited**.
+With the paper definition `r_K = cos_last / cos_first`, the v0.6.4 output
+hyper-encoder is strongly prefix-aligned (`6.54`, `5.58`, `4.91` for K=2/3/4),
+while the input hyper-encoder approaches balance (`0.63`, `0.90`, `0.99`).
+The raw Phi base-token tables do not show the same output effect: their ratios are
+`1.27`, `1.00`, `0.82` in output space and `0.87`, `0.75`, `0.69` in input space.

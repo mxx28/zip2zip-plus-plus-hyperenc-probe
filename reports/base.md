@@ -67,44 +67,44 @@ Real vocab tokens that are growing string-prefixes `a ⊂ b ⊂ c` (mapped to H2
 | lm_head (output space) | 0.2297 | 0.2309 | 0.2323 |
 | tok_emb (input space) | 0.0897 | 0.0926 | 0.0988 |
 
-## ④ Substitution probe: replace first vs last piece (cosine distance)
+## ④ Substitution probe: replace first vs last piece (cosine similarity)
 
-change-first = pairs sharing pieces p2..pK, differing in p1. change-last = sharing p1..p(K−1), differing in pK. Cells are `change-first/change-last` distances; `first/last > 1` = the first piece matters more (prefix-dominated). Same layout as the hyper-token ④ tables.
+change-first = pairs sharing pieces p2..pK, differing in p1. change-last = sharing p1..p(K−1), differing in pK. Cells are `cos_first/cos_last` similarities. The ratio is cos_last / cos_first: > 1 means prefix-aligned, < 1 means suffix-aligned, and approximately 1 means balanced. Same layout as the hyper-token ④ tables.
 
 **④a raw**
 
-| table | K2 first/last | K3 first/last | K4 first/last | K2 ratio | K3 ratio | K4 ratio |
+| table | K2 cos_first/cos_last | K3 cos_first/cos_last | K4 cos_first/cos_last | K2 ratio | K3 ratio | K4 ratio |
 |---|--:|--:|--:|--:|--:|--:|
-| lm_head (output space) | 0.85/0.80 | 0.76/0.76 | 0.66/0.72 | **1.06×** | **1.01×** | **0.92×** |
-| tok_emb (input space) | 0.92/0.92 | 0.87/0.90 | 0.83/0.88 | **0.99×** | **0.96×** | **0.94×** |
+| lm_head (output space) | 0.16/0.21 | 0.25/0.25 | 0.35/0.28 | **1.27×** | **1.0×** | **0.82×** |
+| tok_emb (input space) | 0.09/0.08 | 0.14/0.10 | 0.18/0.12 | **0.87×** | **0.75×** | **0.69×** |
 
 **④b after ruler removal**
 
-| table | K2 first/last | K3 first/last | K4 first/last | K2 ratio | K3 ratio | K4 ratio |
+| table | K2 cos_first/cos_last | K3 cos_first/cos_last | K4 cos_first/cos_last | K2 ratio | K3 ratio | K4 ratio |
 |---|--:|--:|--:|--:|--:|--:|
-| lm_head (output space) | 0.90/0.85 | 0.80/0.79 | 0.70/0.76 | **1.06×** | **1.01×** | **0.92×** |
-| tok_emb (input space) | 0.92/0.93 | 0.87/0.91 | 0.84/0.89 | **0.99×** | **0.97×** | **0.94×** |
+| lm_head (output space) | 0.12/0.17 | 0.21/0.21 | 0.31/0.25 | **1.4×** | **1.0×** | **0.79×** |
+| tok_emb (input space) | 0.09/0.07 | 0.13/0.10 | 0.17/0.11 | **0.86×** | **0.74×** | **0.68×** |
 
 ## Side-by-side with hyper-tokens — the money comparison
 
-Does the hyper-encoder impose more first-piece dominance than the raw embedding table shows? The minimal-pair ratio is ruler-robust, so it compares cleanly across all columns. **Bold = base control** (raw table, no encoder) — the reference each encoder column is read against.
+Does the hyper-encoder impose more first-piece dominance than the raw embedding table shows? Paper comparisons use the raw cosine similarities only; ruler-removed diagnostics stay available above but are not used in the figure. **Bold = base control** (raw table, no encoder) — the reference each encoder column is read against.
 
-**④ substitution first/last ratio (prefix-dominance), per K**
+**④ substitution cos_last/cos_first ratio, per K**
 
-| K | **base `lm_head`** | v0.6.4 out | vx0.6.4.2 out | **base `tok_emb`** | v0.6.4 in | vx0.6.4.2 in |
-|:--|--:|--:|--:|--:|--:|--:|
-| 2 | **1.06×** | 6.2× | 2.01× | **0.99×** | 0.55× | 0.72× |
-| 3 | **1.01×** | 14.79× | 3.92× | **0.96×** | 0.82× | 0.46× |
-| 4 | **0.92×** | 20.93× | 4.85× | **0.94×** | 0.99× | 0.37× |
+| K | **base `lm_head`** | v0.6.4 out | **base `tok_emb`** | v0.6.4 in |
+|:--|--:|--:|--:|--:|
+| 2 | **1.27×** | 6.54× | **0.87×** | 0.63× |
+| 3 | **1.0×** | 5.58× | **0.75×** | 0.9× |
+| 4 | **0.82×** | 4.91× | **0.69×** | 0.99× |
 
 **① first-piece cosine (pos1), per K** — raw. (Note: a strong shared ruler makes the *raw* hyper cosine ≈ its ruler value, not 0; read alongside ④.)
 
-| K | **base `lm_head`** | v0.6.4 out | vx0.6.4.2 out | **base `tok_emb`** | v0.6.4 in | vx0.6.4.2 in |
-|:--|--:|--:|--:|--:|--:|--:|
-| 2 | **0.2469** | 0.8917 | 0.012 | **0.0931** | 0.4916 | 0.0953 |
-| 3 | **0.1187** | 0.865 | 0.0109 | **0.0392** | 0.4971 | 0.0498 |
-| 4 | **0.0664** | 0.8586 | 0.0084 | **0.0187** | 0.5061 | 0.0423 |
+| K | **base `lm_head`** | v0.6.4 out | **base `tok_emb`** | v0.6.4 in |
+|:--|--:|--:|--:|--:|
+| 2 | **0.2469** | 0.8914 | **0.0931** | 0.4898 |
+| 3 | **0.1187** | 0.8649 | **0.0392** | 0.4953 |
+| 4 | **0.0664** | 0.858 | **0.0187** | 0.5015 |
 
 ---
 
-*Repro: `uv run python probe_base.py`. Data: `results/base.json`. Method: see `docs/base_probe.md`.*
+*Repro: `uv run python probe_base.py base`. Data: `results/base.json`. Method: see `docs/base_probe.md`.*
