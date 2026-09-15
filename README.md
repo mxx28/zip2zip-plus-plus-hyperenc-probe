@@ -74,13 +74,11 @@ figures/                      committed PDF and PNG outputs
 results/                      full measurement JSON for paper checkpoints
 docs/                         methods and reproduction instructions
 weights/                      local extracted checkpoints; ignored by Git
-extras/                       exploratory diagnostics not used in the paper
 ```
 
-The measurement scripts retain some auxiliary diagnostic fields in their JSON
-outputs for provenance and backwards compatibility. Ruler removal, growth
-examples, and the base-pieces-through-hyper-encoder experiment are not used by
-the paper figures and are documented under `extras/`.
+The measurement scripts retain auxiliary diagnostic fields in their JSON and
+generated reports for provenance and backwards compatibility. These fields are
+not used by the paper figures. Generated reports are ignored by Git.
 
 ## Methods
 

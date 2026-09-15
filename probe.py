@@ -20,10 +20,10 @@ report for exact counts:
   base-token ids alone — any valid K-tuple probes the same learned geometry.
 
 The FINAL vector is the one the model actually uses:
-  residual=True  -> E = base_vec[t1] + encoder_out   (v0.5, v0.6.4, ...)
-  residual=False -> E = encoder_out                  (no_encoder_residual runs such as v0.52)
+  residual=True  -> E = base_vec[t1] + encoder_out   (paper checkpoints)
+  residual=False -> E = encoder_out                  (optional no-residual checkpoints)
 
-Outputs: results/<name>.json  and  extras/reports/<name>.md.
+Outputs: results/<name>.json  and  reports/<name>.md.
 Usage: `python probe.py <preset>`   (one checkpoint per run; compare reports yourself)
 """
 import sys, re, os, json
@@ -40,15 +40,12 @@ N_RESAMPLE = 6      # ④ random-replacement resamples
 N_EXAMPLES = 4      # ⑤ illustrative nested chains
 
 # ---- presets: name -> (label, weights_file, residual_bool) ----
-# residual=False for no_encoder_residual runs such as v0.52.
 # The base model's tokenizer + vocab bound travel with the preset: the corpus
 # n-grams must be tokenized by the SAME tokenizer whose embedding table the
 # encoder reads (a Phi-tokenized n-gram is meaningless ids in Llama space).
 PHI = ("microsoft/Phi-3.5-mini-instruct", 32064)
 LLAMA3 = ("meta-llama/Llama-3.2-3B-Instruct", 128256)
 PRESETS = {
-    "v05":   ("v0.5 (untied, residual)",       f"{W}/encoders_v05.pt",   True, *PHI),
-    "v052":  ("v0.52 (untied, no-residual)",   f"{W}/encoders_v052.pt",  False, *PHI),
     "v064":  ("v0.6.4 (untied, residual)",     f"{W}/encoders_v064.pt",  True, *PHI),
     # Llama-3.2-3B-Instruct v0.6.4 pair (Andrea, 2026-09). Same recipe, single
     # variable = --untied_hyper_encoder. The base model TIES e_in and e_out, so
@@ -354,9 +351,9 @@ def md():
     return "\n".join(o)
 
 
-os.makedirs(f"{HERE}/extras/reports", exist_ok=True)
-open(f"{HERE}/extras/reports/{RUN}.md", "w").write(md())
-print(f"wrote results/{RUN}.json and extras/reports/{RUN}.md")
+os.makedirs(f"{HERE}/reports", exist_ok=True)
+open(f"{HERE}/reports/{RUN}.md", "w").write(md())
+print(f"wrote results/{RUN}.json and reports/{RUN}.md")
 for role in ("output", "input"):
     mp = res[role]["minpair"]
     print(f"  {role}: cos_last/cos_first raw ratio K2/3/4 = "

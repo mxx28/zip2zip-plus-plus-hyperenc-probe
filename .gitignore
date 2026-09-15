@@ -16,5 +16,6 @@ dist/
 weights/
 *.pt
 
-# Logs can be regenerated from probe runs.
+# Logs and diagnostic reports can be regenerated from probe runs.
 *.log
+reports/
