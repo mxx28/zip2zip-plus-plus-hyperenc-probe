@@ -1,56 +1,95 @@
-# hyperenc_probe
+# Hyper-Encoder Embedding Probes
 
-A small, reproducible toolkit for asking **what a zip2zip hyper-token's embedding
-actually represents** — and whether that geometry is created by the hyper-encoder
-or inherited from the embedding table. Runs directly on a trained checkpoint's
-weights (no training, no GPU); one checkpoint per run, compare reports yourself.
+Reproduction code and artifacts for the embedding probes used to study the
+learned geometry of zip2zip LZW hyper-tokens.
 
-## Two probes
+The repository covers the two experiments reported in the paper:
 
-| probe | script | method doc | question |
+- **Substitution probe:** replace the first or last constituent of a hyper-token
+  and measure how much its embedding changes.
+- **Sequence probe:** compare embeddings of all contiguous sub-spans of a short
+  sequence.
+
+The paper-facing analyses use the raw final embeddings produced by the trained
+input and output hyper-encoders. The BPE experiment is a control measured
+directly on the pretrained input and output embedding tables.
+
+## Main results
+
+For a span of length $K$, the substitution probe reports
+
+$$
+r_K = \frac{\cos_{\mathrm{last}}}{\cos_{\mathrm{first}}}.
+$$
+
+Here, $r_K>1$ is **prefix-aligned**, $r_K<1$ is **suffix-aligned**, and
+$r_K\approx1$ is **balanced**.
+
+On Phi-3.5-mini, the output hyper-encoder is strongly prefix-aligned
+($r_2=6.54$, $r_3=5.58$, $r_4=4.91$), while the input hyper-encoder
+becomes balanced at longer spans ($r_4=0.99$). The BPE base-table control
+does not show comparable asymmetry. The Llama-3.2-3B results reproduce the same
+qualitative distinction and additionally compare tied and untied
+hyper-encoders.
+
+The sequence probe uses the four-token span `It is a dog`. Output embeddings
+form blocks for spans that share a prefix, whereas input embeddings vary more
+smoothly with constituent overlap.
+
+| Experiment | Model / condition | Committed data | Rendered output |
 |---|---|---|---|
-| **Hyper-token** | `probe.py` | [`docs/hyper_probe.md`](docs/hyper_probe.md) | does a hyper-token's embedding key on its first / last / all base tokens? do the input vs output encoders differ? |
-| **Base-token control** | `probe_base.py` | [`docs/base_probe.md`](docs/base_probe.md) | does the raw embedding table already show that geometry (BPE-inherited), or is it encoder-created? |
+| Substitution probe | Phi LZW hyper-tokens | `data/substitution_phi.csv` | `figures/substitution_phi_hyper_tokens.{pdf,png}` |
+| BPE base-table control | Phi-3.5-mini | `data/substitution_phi.csv` | `figures/substitution_phi_base_table_control.{pdf,png}` |
+| Substitution probe | Llama-3.2-3B, tied and untied | `data/substitution_llama3B_*.csv` | `figures/substitution_llama.{pdf,png}` |
+| Sequence probe | Phi LZW hyper-tokens | `data/sequence_phi.csv` | `figures/sequence_phi.{pdf,png}` |
 
-Both share the same five-step cosine method (① raw per-position · ② shared
-"ruler" · ③ ruler-removed per-position · ④ substitution · ⑤ growth) so
-their reports read side by side.
+## Reproduce the figures
 
-## Layout
-
-```
-enc_lib.py        faithful, bit-exact (max|Δ|=0) encoder forward + load_pair(path)
-probe.py          hyper-token probe (WikiText-2 n-grams) → results/<preset>.json + reports/<preset>.md
-probe_base.py     base-token BPE control → results/base.json + reports/base.md
-probe_base_hyper.py  control: base BPE pieces through the encoder (OOD, appendix)
-weights/          extracted per-checkpoint tensors (hyper_encoder, hyper_output,
-                  tok_embeddings, output.weight) — small, not the 17GB model.pt
-results/          <name>.json + <name>.log
-reports/          <name>.md
-```
-
-## Run
+The committed CSV files are sufficient to render every paper figure; model
+weights are not needed for this step.
 
 ```bash
-cd zip2zip-core        # use its uv venv (torch, transformers, datasets)
-HF_HOME=/dlabscratch1/gentilin/.cache/huggingface \
-  uv run python /dlabscratch1/xinma/zip2zip-hyperenc_probe/probe.py v064     # a checkpoint
-HF_HOME=/dlabscratch1/gentilin/.cache/huggingface \
-  uv run python /dlabscratch1/xinma/zip2zip-hyperenc_probe/probe_base.py     # the control
+python -m pip install -r requirements.txt
+python plot_phi_substitution.py
+python plot_llama_substitution.py
+python plot_sequence_probe.py
 ```
 
-`probe.py` reads WikiText-2-raw-v1 (`datasets`); it defaults `HF_DATASETS_CACHE`
-to a writable path internally, so no extra env is needed. Presets in `probe.py` include the Phi runs `v05`, `v052`, `v064` and the two Llama-3.2-3B v0.6.4 runs. See each method doc for how to
-extract weights, add a preset, and read the tables.
+See [docs/reproduction.md](docs/reproduction.md) for end-to-end measurement
+commands and [docs/checkpoints.md](docs/checkpoints.md) for the expected
+checkpoint files. The extracted checkpoints have not been published yet.
 
-## Paper figures
+## Repository layout
 
-Paper plots follow a CSV-first workflow: `prepare_figure_data.py` writes the figure data, then `make_paper_fig.py` and `make_span_similarity_fig.py` read only those CSV files. See [`docs/paper_figures.md`](docs/paper_figures.md) for commands, provenance, and captions.
+```text
+enc_lib.py                    standalone hyper-encoder forward pass
+probe.py                      LZW hyper-token measurements
+probe_base.py                 BPE base-table control
+prepare_paper_data.py         export paper-facing CSV data
+plot_phi_substitution.py      render the Phi substitution plots
+plot_llama_substitution.py    render the Llama substitution plot
+plot_sequence_probe.py        render the sequence-probe heatmaps
+data/                         committed, paper-facing measurements
+figures/                      committed PDF and PNG outputs
+results/                      full measurement JSON for paper checkpoints
+docs/                         methods and reproduction instructions
+weights/                      local extracted checkpoints; ignored by Git
+extras/                       exploratory diagnostics not used in the paper
+```
 
-## Headline finding so far
+The measurement scripts retain some auxiliary diagnostic fields in their JSON
+outputs for provenance and backwards compatibility. Ruler removal, growth
+examples, and the base-pieces-through-hyper-encoder experiment are not used by
+the paper figures and are documented under `extras/`.
 
-With the paper definition `r_K = cos_last / cos_first`, the v0.6.4 output
-hyper-encoder is strongly prefix-aligned (`6.54`, `5.58`, `4.91` for K=2/3/4),
-while the input hyper-encoder approaches balance (`0.63`, `0.90`, `0.99`).
-The raw Phi base-token tables do not show the same output effect: their ratios are
-`1.27`, `1.00`, `0.82` in output space and `0.87`, `0.75`, `0.69` in input space.
+## Methods
+
+- [Substitution probe](docs/substitution_probe.md)
+- [Sequence probe](docs/sequence_probe.md)
+- [Reproduction](docs/reproduction.md)
+- [Checkpoint inventory](docs/checkpoints.md)
+
+The implementation is CPU-compatible and does not require the full training
+codebase. End-to-end measurement requires sufficient RAM for the extracted
+embedding tables and access to the relevant Hugging Face tokenizers and
+WikiText-2.
