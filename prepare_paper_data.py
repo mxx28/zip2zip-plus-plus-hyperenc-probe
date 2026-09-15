@@ -2,8 +2,9 @@
 
 Plotting is intentionally separated from measurement:
 
-* Figure 1 is exported from the committed aggregate JSON results.
-* Figure 6 is measured from the frozen v0.6.4 encoders, then exported to CSV.
+* The substitution probe is exported from committed aggregate JSON results.
+* The sequence probe is measured from the frozen v0.6.4 encoders, then exported
+  to CSV.
 
 The plotting scripts never import torch, load checkpoints, or read result JSON.
 """
@@ -14,22 +15,22 @@ import os
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(HERE, "figure_data")
-FIGURE1_CSV = os.path.join(DATA_DIR, "figure1_substitution.csv")
-FIGURE6_CSV = os.path.join(DATA_DIR, "figure6_subspan_similarity.csv")
+DATA_DIR = os.path.join(HERE, "data")
+PHI_SUBSTITUTION_CSV = os.path.join(DATA_DIR, "substitution_phi.csv")
+SEQUENCE_CSV = os.path.join(DATA_DIR, "sequence_phi.csv")
 
-# Figure 1 presets: name -> (hyper results tag, base-table results tag, CSV path).
+# Substitution presets: name -> (hyper result tag, base-table result tag, CSV path).
 # The base tag must come from the same base model as the hyper tag: Llama-3.2
 # ties tok_embeddings and lm_head, so its two base-table series coincide.
-FIGURE1_PRESETS = {
-    "v064": ("v064", "base", FIGURE1_CSV),
+SUBSTITUTION_PRESETS = {
+    "v064": ("v064", "base", PHI_SUBSTITUTION_CSV),
     "llama3B_untied": (
         "llama3B_v064_untied", "base_llama3B",
-        os.path.join(DATA_DIR, "figure1_substitution_llama3B_untied.csv"),
+        os.path.join(DATA_DIR, "substitution_llama3B_untied.csv"),
     ),
     "llama3B_tied": (
         "llama3B_v064_tied", "base_llama3B",
-        os.path.join(DATA_DIR, "figure1_substitution_llama3B_tied.csv"),
+        os.path.join(DATA_DIR, "substitution_llama3B_tied.csv"),
     ),
 }
 
@@ -43,9 +44,9 @@ def write_rows(path, fieldnames, rows):
     print(f"wrote {os.path.relpath(path, HERE)} ({len(rows)} rows)")
 
 
-def prepare_figure1(preset="v064"):
-    """Export the raw-vector substitution measurements used by Figure 1."""
-    hyper_tag, base_tag, csv_path = FIGURE1_PRESETS[preset]
+def prepare_substitution(preset="v064"):
+    """Export the raw-vector measurements used by the substitution probe."""
+    hyper_tag, base_tag, csv_path = SUBSTITUTION_PRESETS[preset]
     with open(os.path.join(HERE, "results", f"{hyper_tag}.json"), encoding="utf-8") as f:
         hyper = json.load(f)
     with open(os.path.join(HERE, "results", f"{base_tag}.json"), encoding="utf-8") as f:
@@ -93,9 +94,9 @@ def prepare_figure1(preset="v064"):
     )
 
 
-def prepare_figure6():
-    """Measure pairwise similarities for all contiguous subspans of one span."""
-    # Imports stay local so preparing Figure 1 remains lightweight.
+def prepare_sequence():
+    """Measure pairwise similarities for all contiguous sub-spans of one span."""
+    # Imports stay local so preparing substitution data remains lightweight.
     import torch
     import torch.nn.functional as F
     from transformers import AutoTokenizer
@@ -109,7 +110,7 @@ def prepare_figure6():
     token_labels = [tokenizer.decode([token_id]).strip() for token_id in token_ids]
     if len(token_ids) != 4:
         raise ValueError(
-            f"Figure 6 requires exactly four base tokens, but {phrase!r} produced "
+            f"The sequence probe requires exactly four base tokens, but {phrase!r} produced "
             f"{len(token_ids)}: {token_labels}"
         )
 
@@ -154,7 +155,7 @@ def prepare_figure6():
                 })
 
     write_rows(
-        FIGURE6_CSV,
+        SEQUENCE_CSV,
         [
             "role", "row_index", "column_index", "row_span", "column_span",
             "cosine_similarity", "phrase", "base_tokens", "preset", "variant",
@@ -166,22 +167,22 @@ def prepare_figure6():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--figure",
-        choices=("1", "6", "all"),
+        "--probe",
+        choices=("substitution", "sequence", "all"),
         default="all",
-        help="which paper figure data to prepare (default: all)",
+        help="which paper probe data to prepare (default: all)",
     )
     parser.add_argument(
         "--preset",
-        choices=tuple(FIGURE1_PRESETS),
+        choices=tuple(SUBSTITUTION_PRESETS),
         default="v064",
-        help="which checkpoint's Figure 1 data to prepare (default: v064)",
+        help="which substitution-probe checkpoint to prepare (default: v064)",
     )
     args = parser.parse_args()
-    if args.figure in ("1", "all"):
-        prepare_figure1(args.preset)
-    if args.figure in ("6", "all"):
-        prepare_figure6()
+    if args.probe in ("substitution", "all"):
+        prepare_substitution(args.preset)
+    if args.probe in ("sequence", "all"):
+        prepare_sequence()
 
 
 if __name__ == "__main__":

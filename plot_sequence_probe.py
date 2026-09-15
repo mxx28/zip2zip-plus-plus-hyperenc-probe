@@ -1,4 +1,4 @@
-"""Plot Figure 6 from figure_data/figure6_subspan_similarity.csv only."""
+"""Plot the sequence probe from data/sequence_phi.csv only."""
 import csv
 import os
 
@@ -9,9 +9,10 @@ import numpy as np
 
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CSV_PATH = os.path.join(HERE, "figure_data", "figure6_subspan_similarity.csv")
-PDF_PATH = os.path.join(HERE, "paper_fig_subspan_similarity.pdf")
-PNG_PATH = os.path.join(HERE, "paper_fig_subspan_similarity.png")
+CSV_PATH = os.path.join(HERE, "data", "sequence_phi.csv")
+OUTPUT_DIR = os.path.join(HERE, "figures")
+PDF_PATH = os.path.join(OUTPUT_DIR, "sequence_phi.pdf")
+PNG_PATH = os.path.join(OUTPUT_DIR, "sequence_phi.png")
 
 
 def load_data():
@@ -24,14 +25,14 @@ def load_data():
         role = row["role"]
         i, j = int(row["row_index"]), int(row["column_index"])
         if role not in matrices or not (0 <= i < 6 and 0 <= j < 6):
-            raise ValueError(f"invalid Figure 6 row: {row}")
+            raise ValueError(f"invalid sequence-probe row: {row}")
         matrices[role][i, j] = float(row["cosine_similarity"])
         if labels[i] not in (None, row["row_span"]):
             raise ValueError(f"inconsistent label for row {i}")
         labels[i] = row["row_span"]
         phrase = phrase or row["phrase"]
         if phrase != row["phrase"]:
-            raise ValueError("Figure 6 CSV contains multiple source phrases")
+            raise ValueError("sequence-probe CSV contains multiple source phrases")
 
     for role, matrix in matrices.items():
         if np.isnan(matrix).any():
@@ -51,6 +52,7 @@ def wrap_long_label(label):
 
 
 def main():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     phrase, labels, matrices = load_data()
     titles = {
         "output": "Output embedding (prefix-aligned)",
@@ -91,7 +93,7 @@ def main():
     )
     fig.savefig(PDF_PATH, bbox_inches="tight")
     fig.savefig(PNG_PATH, dpi=240, bbox_inches="tight")
-    print(f"wrote {os.path.basename(PDF_PATH)} / {os.path.basename(PNG_PATH)}")
+    print(f"wrote figures/{os.path.basename(PDF_PATH)} / figures/{os.path.basename(PNG_PATH)}")
 
 
 if __name__ == "__main__":

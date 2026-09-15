@@ -15,12 +15,13 @@ import numpy as np
 
 
 HERE = Path(__file__).resolve().parent
-FIGURE_DATA = HERE / "figure_data"
-OUTPUT_STEM = HERE / "paper_fig_llama"
+PAPER_DATA = HERE / "data"
+OUTPUT_DIR = HERE / "figures"
+OUTPUT_STEM = OUTPUT_DIR / "substitution_llama"
 
 CSV_FILES = {
-    "untied": FIGURE_DATA / "figure1_substitution_llama3B_untied.csv",
-    "tied": FIGURE_DATA / "figure1_substitution_llama3B_tied.csv",
+    "untied": PAPER_DATA / "substitution_llama3B_untied.csv",
+    "tied": PAPER_DATA / "substitution_llama3B_tied.csv",
 }
 ROWS = (
     ("Untied", "untied", "LZW hyper-token"),
@@ -89,6 +90,7 @@ def value_label(metric, value):
 
 
 def main():
+    OUTPUT_DIR.mkdir(exist_ok=True)
     datasets = {name: load_csv(path) for name, path in CSV_FILES.items()}
     for _, source, panel in ROWS:
         validate(datasets[source], CSV_FILES[source], panel)
@@ -166,7 +168,7 @@ def main():
 
     fig.savefig(OUTPUT_STEM.with_suffix(".pdf"), bbox_inches="tight")
     fig.savefig(OUTPUT_STEM.with_suffix(".png"), dpi=240, bbox_inches="tight")
-    print("wrote paper_fig_llama.pdf / paper_fig_llama.png")
+    print("wrote figures/substitution_llama.pdf / figures/substitution_llama.png")
 
 
 if __name__ == "__main__":

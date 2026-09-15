@@ -10,18 +10,19 @@ import numpy as np
 
 
 HERE = Path(__file__).resolve().parent
-CSV_PATH = HERE / "figure_data" / "figure1_substitution.csv"
+OUTPUT_DIR = HERE / "figures"
+CSV_PATH = HERE / "data" / "substitution_phi.csv"
 
 FIGURES = (
     (
         "LZW hyper-token",
         "Embedding Alignment under Token Substitution: LZW Hyper-tokens",
-        "paper_fig_phi_hyper",
+        "substitution_phi_hyper_tokens",
     ),
     (
         "BPE base-token",
         "Embedding Alignment under Token Substitution: BPE Base Tokens",
-        "paper_fig_phi_base",
+        "substitution_phi_base_table_control",
     ),
 )
 METRICS = ("first", "last", "ratio")
@@ -145,7 +146,7 @@ def render(data, panel, heading, output_stem):
     fig.suptitle(heading, fontsize=13, fontweight="bold", y=0.98)
     fig.tight_layout(rect=(0, 0, 1, 0.86), w_pad=1.5)
 
-    output = HERE / output_stem
+    output = output_stem
     fig.savefig(output.with_suffix(".pdf"), bbox_inches="tight")
     fig.savefig(output.with_suffix(".png"), dpi=240, bbox_inches="tight")
     plt.close(fig)
@@ -153,9 +154,10 @@ def render(data, panel, heading, output_stem):
 
 
 def main():
+    OUTPUT_DIR.mkdir(exist_ok=True)
     data = load_data()
     for panel, heading, output_stem in FIGURES:
-        render(data, panel, heading, output_stem)
+        render(data, panel, heading, OUTPUT_DIR / output_stem)
 
 
 if __name__ == "__main__":
