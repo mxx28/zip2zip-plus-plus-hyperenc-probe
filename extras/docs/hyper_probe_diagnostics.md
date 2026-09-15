@@ -162,8 +162,7 @@ model code changes.
 3. Run from the zip2zip-core uv venv:
    ```bash
    cd zip2zip-core
-   HF_HOME=/dlabscratch1/gentilin/.cache/huggingface \
-     uv run python /dlabscratch1/xinma/zip2zip-hyperenc_probe/probe.py <preset>
+   python probe.py <preset>
    ```
    → writes `results/<preset>.json` and `reports/<preset>.md`.
 

@@ -23,8 +23,8 @@ The FINAL vector is the one the model actually uses:
   residual=True  -> E = base_vec[t1] + encoder_out   (v0.5, v0.6.4, ...)
   residual=False -> E = encoder_out                  (no_encoder_residual runs such as v0.52)
 
-Outputs: results/<name>.json  and  reports/<name>.md.
-Usage: `uv run python probe.py <preset>`   (one checkpoint per run; compare reports yourself)
+Outputs: results/<name>.json  and  extras/reports/<name>.md.
+Usage: `python probe.py <preset>`   (one checkpoint per run; compare reports yourself)
 """
 import sys, re, os, json
 from collections import Counter
@@ -33,9 +33,6 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import enc_lib
 from transformers import AutoTokenizer
-os.environ.setdefault("HF_HOME", "/dlabscratch1/gentilin/.cache/huggingface")
-# datasets cache must be writable by us (the model cache above is read-only shared)
-os.environ.setdefault("HF_DATASETS_CACHE", "/dlabscratch1/xinma/.cache/huggingface/datasets")
 rng = np.random.default_rng(0)
 W = f"{HERE}/weights"
 N_TOP = 5000        # per-K cap: keep the N most frequent unique K-grams
@@ -278,7 +275,7 @@ def md():
          f"`E = {'base_vec[t1] + encoder_out' if RESID else 'encoder_out'}`). Bit-exact encoder "
          "re-implementation (max|Δ|=0 vs `model.py`). A shared *ruler* vector is not guaranteed (see ②), "
          "so ④ and ⑤ are shown **both** on the raw vector and after ruler removal. Method: see "
-         "`docs/hyper_probe.md`.", "",
+         "`docs/substitution_probe.md`.", "",
          "## Data & objects", "",
          f"**Corpus:** {d['corpus']} — {d['n_tokens']:,} base tokens. "
          f"**Hyper-tokens:** consecutive base-token K-grams (K=2/3/4), dropping any window with a "
@@ -353,13 +350,13 @@ def md():
                 nq = res[role]["nested"][e_i][key]
                 o.append(f"| {role} | {key} | {nq['cos_H2_H3']} | {nq['cos_H2_H4']} |")
         o.append("")
-    o += ["---", "", f"*Repro: `uv run python probe.py {RUN}`. Data: `results/{RUN}.json`.*"]
+    o += ["---", "", f"*Repro: `python probe.py {RUN}`. Data: `results/{RUN}.json`.*"]
     return "\n".join(o)
 
 
-os.makedirs(f"{HERE}/reports", exist_ok=True)
-open(f"{HERE}/reports/{RUN}.md", "w").write(md())
-print(f"wrote results/{RUN}.json and reports/{RUN}.md")
+os.makedirs(f"{HERE}/extras/reports", exist_ok=True)
+open(f"{HERE}/extras/reports/{RUN}.md", "w").write(md())
+print(f"wrote results/{RUN}.json and extras/reports/{RUN}.md")
 for role in ("output", "input"):
     mp = res[role]["minpair"]
     print(f"  {role}: cos_last/cos_first raw ratio K2/3/4 = "

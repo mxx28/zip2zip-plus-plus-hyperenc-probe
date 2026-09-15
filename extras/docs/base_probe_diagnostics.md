@@ -135,8 +135,7 @@ representation as K increases.
 
 ```bash
 cd zip2zip-core
-HF_HOME=/dlabscratch1/gentilin/.cache/huggingface \
-  uv run python /dlabscratch1/xinma/zip2zip-hyperenc_probe/probe_base.py
+python probe_base.py
 ```
 → writes `results/base.json` and `reports/base.md` (includes the side-by-side
 with the v0.6.4 hyper-token K=2 numbers).

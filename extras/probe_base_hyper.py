@@ -23,12 +23,12 @@ import os, json
 import torch, torch.nn.functional as F
 from collections import defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
-import sys; sys.path.insert(0, HERE)
+ROOT = os.path.dirname(HERE)
+import sys; sys.path.insert(0, ROOT)
 import enc_lib
 from transformers import AutoTokenizer
-os.environ.setdefault("HF_HOME", "/dlabscratch1/gentilin/.cache/huggingface")
 KS = (2, 3, 4)
-W = f"{HERE}/weights"
+W = f"{ROOT}/weights"
 CKPTS = [("v064", "v0.6.4 (residual)", f"{W}/encoders_v064.pt", True)]
 
 tok = AutoTokenizer.from_pretrained("microsoft/Phi-3.5-mini-instruct")
@@ -205,7 +205,7 @@ def md_single(tag):
             rt = " | ".join(f"**{m[K]['ratio']}×**" for K in KS)
             o.append(f"| {name} | {fl} | {rt} |")
         o.append("")
-    o += ["---", "", f"*Repro: `uv run python probe_base_hyper.py`. Data: `results/base_hyper_{tag}.json`.*"]
+    o += ["---", "", f"*Repro: `uv run python extras/probe_base_hyper.py`. Data: `results/base_hyper_{tag}.json`.*"]
     return "\n".join(o)
 
 
@@ -215,7 +215,7 @@ for tag, *_ in CKPTS:
 
 # ---------- controlled base-vs-encoder summary ----------
 def md_combined():
-    base = json.load(open(f"{HERE}/results/base.json")) if os.path.exists(f"{HERE}/results/base.json") else None
+    base = json.load(open(f"{ROOT}/results/base.json")) if os.path.exists(f"{ROOT}/results/base.json") else None
     LM, TE = "lm_head (output space)", "tok_emb (input space)"
     tags = [t for t, *_ in CKPTS]
     o = ["# Controlled comparison — identical objects, raw lookup vs hyper-encoder", "",
@@ -249,7 +249,7 @@ def md_combined():
                    note="(read together with the substitution ratios)")
     else:
         o += ["_(run `probe_base.py` first to populate the base-lookup columns.)_", ""]
-    o += ["---", "", "*Repro: `uv run python probe_base_hyper.py` (after `probe_base.py`). "
+    o += ["---", "", "*Repro: `uv run python extras/probe_base_hyper.py` (after `probe_base.py`). "
           "Data: `results/base_hyper_v064.json`, `results/base.json`.*"]
     return "\n".join(o)
 

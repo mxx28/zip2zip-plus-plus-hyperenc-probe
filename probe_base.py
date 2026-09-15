@@ -29,7 +29,6 @@ import torch, torch.nn.functional as F
 from collections import defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
 from transformers import AutoTokenizer
-os.environ.setdefault("HF_HOME", "/dlabscratch1/gentilin/.cache/huggingface")
 KS = (2, 3, 4)
 
 # ---- presets: name -> (tokenizer, weights_file, hyper results to compare against) ----
@@ -305,13 +304,13 @@ def md():
         o += sxs_rows(pp)
         o.append("")
     o += ["---", "",
-          f"*Repro: `uv run python probe_base.py {RUN}`. Data: `results/{RUN}.json`. Method: see `docs/base_probe.md`.*"]
+          f"*Repro: `python probe_base.py {RUN}`. Data: `results/{RUN}.json`. Method: see `docs/substitution_probe.md`.*"]
     return "\n".join(o)
 
 
-os.makedirs(f"{HERE}/reports", exist_ok=True)
-open(f"{HERE}/reports/{RUN}.md", "w").write(md())
-print(f"wrote results/{RUN}.json and reports/{RUN}.md")
+os.makedirs(f"{HERE}/extras/reports", exist_ok=True)
+open(f"{HERE}/extras/reports/{RUN}.md", "w").write(md())
+print(f"wrote results/{RUN}.json and extras/reports/{RUN}.md")
 for name in TABLES:
     for K in KS:
         a = res[name][str(K)]
