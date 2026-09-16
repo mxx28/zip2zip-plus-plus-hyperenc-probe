@@ -8,20 +8,20 @@ on `main` and the user-facing export on the `hf` revision.
 
 | Probe name | Base model | Hugging Face repository |
 |---|---|---|
-| `llama1b` | Llama-3.2-1B-Instruct | `epfl-dlab/zip2zip++-Llama-3.2-1B-Instruct` |
-| `llama3b` | Llama-3.2-3B-Instruct | `epfl-dlab/zip2zip++-Llama-3.2-3B-Instruct` |
-| `phi4b` | Phi-3.5-mini-instruct | `epfl-dlab/zip2zip++-Phi-3.5-mini-instruct` |
-| `phi14b` | Phi-3-medium-4k-instruct | `epfl-dlab/zip2zip++-Phi-3-medium-4k-instruct` |
+| `llama1b` | Llama-3.2-1B-Instruct | `epfl-dlab/zip2zip-pp-Llama-3.2-1B-Instruct` |
+| `llama3b` | Llama-3.2-3B-Instruct | `epfl-dlab/zip2zip-pp-Llama-3.2-3B-Instruct` |
+| `phi4b` | Phi-3.5-mini-instruct | `epfl-dlab/zip2zip-pp-Phi-3.5-mini-instruct` |
+| `phi14b` | Phi-3-medium-4k-instruct | `epfl-dlab/zip2zip-pp-Phi-3-medium-4k-instruct` |
 
 For example:
 
 ```bash
 python probe.py \
-  --repo-id epfl-dlab/zip2zip++-Llama-3.2-1B-Instruct \
+  --repo-id epfl-dlab/zip2zip-pp-Llama-3.2-1B-Instruct \
   --revision hf \
   --name llama1b
 python probe_base.py \
-  --repo-id epfl-dlab/zip2zip++-Llama-3.2-1B-Instruct \
+  --repo-id epfl-dlab/zip2zip-pp-Llama-3.2-1B-Instruct \
   --revision hf \
   --name llama1b
 ```
