@@ -51,11 +51,11 @@ self-contained `hf` revision:
 ```bash
 python -m pip install -r requirements.txt
 python probe.py \
-  --repo-id epfl-dlab/zip2zippp-Llama-3.2-1B-Instruct \
+  --repo-id epfl-dlab/zip2zip++-Llama-3.2-1B-Instruct \
   --revision hf \
   --name llama1b
 python probe_base.py \
-  --repo-id epfl-dlab/zip2zippp-Llama-3.2-1B-Instruct \
+  --repo-id epfl-dlab/zip2zip++-Llama-3.2-1B-Instruct \
   --revision hf \
   --name llama1b
 ```

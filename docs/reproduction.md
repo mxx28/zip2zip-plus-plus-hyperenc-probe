@@ -42,10 +42,10 @@ no machine-specific paths.
 The user-facing files live on each repository's `hf` revision:
 
 ```bash
-python probe.py --repo-id epfl-dlab/zip2zippp-Llama-3.2-1B-Instruct --revision hf --name llama1b
-python probe.py --repo-id epfl-dlab/zip2zippp-Llama-3.2-3B-Instruct --revision hf --name llama3b
-python probe.py --repo-id epfl-dlab/zip2zippp-Phi-3.5-mini-instruct --revision hf --name phi4b
-python probe.py --repo-id epfl-dlab/zip2zippp-Phi-3-medium-4k-instruct --revision hf --name phi14b
+python probe.py --repo-id epfl-dlab/zip2zip++-Llama-3.2-1B-Instruct --revision hf --name llama1b
+python probe.py --repo-id epfl-dlab/zip2zip++-Llama-3.2-3B-Instruct --revision hf --name llama3b
+python probe.py --repo-id epfl-dlab/zip2zip++-Phi-3.5-mini-instruct --revision hf --name phi4b
+python probe.py --repo-id epfl-dlab/zip2zip++-Phi-3-medium-4k-instruct --revision hf --name phi14b
 ```
 
 Run the matching BPE control by changing `probe.py` to `probe_base.py` and
