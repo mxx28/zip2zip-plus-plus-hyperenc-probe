@@ -24,8 +24,10 @@ The FINAL vector is the one the model actually uses:
   residual=False -> E = encoder_out                  (optional no-residual checkpoints)
 
 Outputs: results/<name>.json  and  reports/<name>.md.
-Usage: `python probe.py <preset>`   (one checkpoint per run; compare reports yourself)
+Usage: `python probe.py --repo-id ORG/MODEL --revision hf --name RUN`
+Legacy paper usage: `python probe.py <preset>`
 """
+import argparse
 import sys, re, os, json
 from collections import Counter
 import numpy as np, torch, torch.nn.functional as F
@@ -55,13 +57,77 @@ PRESETS = {
     "llama3B_v064_untied": ("Llama-3.2-3B v0.6.4 (untied HE, residual)",
                             f"{W}/encoders_llama3B_v064_untied.pt", True, *LLAMA3),
     "llama3B_v064_tied": ("Llama-3.2-3B v0.6.4 (tied HE, residual)",
+
+
                           f"{W}/encoders_llama3B_v064_tied.pt", True, *LLAMA3),
 }
-RUN = sys.argv[1] if len(sys.argv) > 1 else "v064"
-LABEL, PATH, RESID, TOK_NAME, VOCAB = PRESETS[RUN]
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Probe a published Zip2Zip++ model or a legacy paper preset."
+    )
+    parser.add_argument(
+        "preset", nargs="?", help="legacy local preset (default: v064)"
+    )
+    parser.add_argument(
+        "--repo-id",
+        help="Hugging Face model repo, or a local self-contained HF export",
+    )
+    parser.add_argument(
+        "--revision", default="hf", help="model revision (default: hf)"
+    )
+    parser.add_argument("--name", help="output stem under results/ and reports/")
+    parser.add_argument("--cache-dir")
+    parser.add_argument("--local-files-only", action="store_true")
+    args = parser.parse_args()
+    if args.repo_id and args.preset:
+        parser.error("choose either a legacy preset or --repo-id, not both")
+    return args
+
+
+ARGS = parse_args()
+if ARGS.repo_id:
+    BUNDLE = enc_lib.load_checkpoint(
+        ARGS.repo_id,
+        revision=ARGS.revision,
+        cache_dir=ARGS.cache_dir,
+        local_files_only=ARGS.local_files_only,
+    )
+    default_name = re.sub(
+        r"[^A-Za-z0-9_.-]+", "_", ARGS.repo_id.rstrip("/").split("/")[-1]
+    )
+    RUN = ARGS.name or default_name
+    LABEL = ARGS.repo_id
+    REPRO_CMD = (
+        f"python probe.py --repo-id {ARGS.repo_id} "
+        f"--revision {ARGS.revision} --name {RUN}"
+    )
+else:
+    RUN = ARGS.preset or "v064"
+    if RUN not in PRESETS:
+        raise SystemExit(
+            f"unknown preset {RUN!r}; choose one of: {', '.join(PRESETS)}"
+        )
+    LABEL, PATH, LEGACY_RESID, LEGACY_TOK, LEGACY_VOCAB = PRESETS[RUN]
+    BUNDLE = enc_lib.load_checkpoint(
+        PATH,
+        legacy_tokenizer=LEGACY_TOK,
+        legacy_vocab_size=LEGACY_VOCAB,
+        legacy_residual=LEGACY_RESID,
+    )
+    REPRO_CMD = f"python probe.py {RUN}"
+
+RESID = BUNDLE.residual
+TOK_NAME = BUNDLE.tokenizer_name_or_path
+VOCAB = BUNDLE.initial_vocab_size
+TOKENIZER_KWARGS = {
+    "cache_dir": ARGS.cache_dir,
+    "local_files_only": ARGS.local_files_only,
+}
+if BUNDLE.tokenizer_revision is not None:
+    TOKENIZER_KWARGS["revision"] = BUNDLE.tokenizer_revision
 
 # ---- build hyper-tokens from WikiText-2-raw-v1 ----
-tok = AutoTokenizer.from_pretrained(TOK_NAME)
+tok = AutoTokenizer.from_pretrained(TOK_NAME, **TOKENIZER_KWARGS)
 DIS = set(tok.all_special_ids) | {tid for ts, tid in tok.get_vocab().items() if re.search(r"[0-9]", ts)}
 
 
@@ -222,10 +288,11 @@ def analyze(enc):
     return R
 
 
-ein, eout = enc_lib.load_pair(PATH)
-rin, _ = enc_lib.load_pair(PATH, random_init=True)
-_, ro = enc_lib.load_pair(PATH, random_init=True)
+ein, eout = enc_lib.load_pair(BUNDLE)
+rin, _ = enc_lib.load_pair(BUNDLE, random_init=True)
+_, ro = enc_lib.load_pair(BUNDLE, random_init=True)
 res = {"label": LABEL, "preset": RUN, "residual": RESID,
+       "checkpoint": {"source": BUNDLE.source, "revision": BUNDLE.tokenizer_revision},
        "data": {"corpus": CORPUS, "n_tokens": n_tokens, "pool": len(POOL),
                 "n_top": N_TOP, "n_resample": N_RESAMPLE, "seed": 0, "ngram": NGRAM},
        "input": analyze(ein), "output": analyze(eout),
@@ -347,7 +414,7 @@ def md():
                 nq = res[role]["nested"][e_i][key]
                 o.append(f"| {role} | {key} | {nq['cos_H2_H3']} | {nq['cos_H2_H4']} |")
         o.append("")
-    o += ["---", "", f"*Repro: `python probe.py {RUN}`. Data: `results/{RUN}.json`.*"]
+    o += ["---", "", f"*Repro: `{REPRO_CMD}`. Data: `results/{RUN}.json`.*"]
     return "\n".join(o)
 
 
