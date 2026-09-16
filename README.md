@@ -43,6 +43,32 @@ smoothly with constituent overlap.
 | Substitution probe | Llama-3.2-3B, tied and untied | `data/substitution_llama3B_*.csv` | `figures/substitution_llama.{pdf,png}` |
 | Sequence probe | Phi LZW hyper-tokens | `data/sequence_phi.csv` | `figures/sequence_phi.{pdf,png}` |
 
+## Probe a published Zip2Zip++ checkpoint
+
+Install the dependencies, then point both probes at a model repository's
+self-contained `hf` revision:
+
+```bash
+python -m pip install -r requirements.txt
+python probe.py \
+  --repo-id epfl-dlab/zip2zippp-Llama-3.2-1B-Instruct \
+  --revision hf \
+  --name llama1b
+python probe_base.py \
+  --repo-id epfl-dlab/zip2zippp-Llama-3.2-1B-Instruct \
+  --revision hf \
+  --name llama1b
+```
+
+The same commands work for the 3B, 4B, and 14B releases; only `--repo-id`
+and `--name` change. The loader derives the encoder architecture and
+vocabulary boundary from `zip2zip_config.json`. It downloads the encoder
+weights and only the decoder shard(s) that contain the input/output embedding
+tables, not the raw training checkpoint or full decoder in memory.
+
+See [docs/checkpoints.md](docs/checkpoints.md) for all four repository names
+and [docs/reproduction.md](docs/reproduction.md) for complete commands.
+
 ## Reproduce the figures
 
 The committed CSV files are sufficient to render every paper figure; model
@@ -56,8 +82,8 @@ python plot_sequence_probe.py
 ```
 
 See [docs/reproduction.md](docs/reproduction.md) for end-to-end measurement
-commands and [docs/checkpoints.md](docs/checkpoints.md) for the expected
-checkpoint files. The extracted checkpoints have not been published yet.
+commands and [docs/checkpoints.md](docs/checkpoints.md) for public and legacy
+checkpoint formats.
 
 ## Repository layout
 
@@ -87,7 +113,6 @@ not used by the paper figures. Generated reports are ignored by Git.
 - [Reproduction](docs/reproduction.md)
 - [Checkpoint inventory](docs/checkpoints.md)
 
-The implementation is CPU-compatible and does not require the full training
-codebase. End-to-end measurement requires sufficient RAM for the extracted
-embedding tables and access to the relevant Hugging Face tokenizers and
-WikiText-2.
+The implementation is CPU-compatible and does not require the training
+codebase. End-to-end measurement requires enough RAM for the two embedding
+tables and access to the model repository and WikiText-2.

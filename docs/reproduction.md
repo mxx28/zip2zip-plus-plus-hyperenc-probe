@@ -29,15 +29,40 @@ figures/sequence_phi.png
 
 ## Recompute the measurements
 
-End-to-end reproduction additionally requires the extracted checkpoints listed
-in [checkpoints.md](checkpoints.md), access to the Hugging Face tokenizers, and
-WikiText-2. All measurement scripts run on CPU.
+End-to-end reproduction can read a public Zip2Zip++ Hugging Face export or one
+of the legacy extracted checkpoints listed in [checkpoints.md](checkpoints.md).
+It also requires WikiText-2. All measurement scripts run on CPU.
 
 You may set `HF_HOME` and `HF_DATASETS_CACHE` before running the commands.
 The scripts otherwise use the standard Hugging Face cache locations and contain
 no machine-specific paths.
 
-### Phi substitution probe and BPE control
+### Four published Zip2Zip++ models
+
+The user-facing files live on each repository's `hf` revision:
+
+```bash
+python probe.py --repo-id epfl-dlab/zip2zippp-Llama-3.2-1B-Instruct --revision hf --name llama1b
+python probe.py --repo-id epfl-dlab/zip2zippp-Llama-3.2-3B-Instruct --revision hf --name llama3b
+python probe.py --repo-id epfl-dlab/zip2zippp-Phi-3.5-mini-instruct --revision hf --name phi4b
+python probe.py --repo-id epfl-dlab/zip2zippp-Phi-3-medium-4k-instruct --revision hf --name phi14b
+```
+
+Run the matching BPE control by changing `probe.py` to `probe_base.py` and
+keeping the same arguments. For example, `--name llama1b` writes
+`results/llama1b.json` and `results/llama1b_base.json`.
+
+The loader downloads `zip2zip_encoders.safetensors` and only the decoder
+shard(s) containing the two embedding tables. The 14B probe therefore does not
+load the full decoder into memory, although its embedding tables are still
+large.
+
+### Exact legacy paper workflow
+
+The commands below retain the old local `weights/*.pt` interface and reproduce
+the committed paper artifacts exactly.
+
+#### Phi substitution probe and BPE control
 
 ```bash
 python probe.py v064
@@ -51,7 +76,7 @@ python plot_phi_substitution.py
 selects only the raw embedding measurements used in the paper and exports them
 to `data/substitution_phi.csv`.
 
-### Llama-3.2-3B substitution probe
+#### Llama-3.2-3B substitution probe
 
 ```bash
 python probe.py llama3B_v064_untied
@@ -67,7 +92,7 @@ Llama-3.2 ties `tok_embeddings` and `lm_head`, so the two base-table series
 coincide. In the tied-hyper-encoder run, the input and output hyper-encoder
 series also coincide by construction.
 
-### Sequence probe
+#### Sequence probe
 
 ```bash
 python prepare_paper_data.py --probe sequence
@@ -81,7 +106,7 @@ contiguous sub-spans of `It is a dog`, and writes
 ## Data flow
 
 ```text
-extracted checkpoint + tokenizer + WikiText-2
+HF export or extracted checkpoint + tokenizer + WikiText-2
                     |
                     v
           probe.py / probe_base.py

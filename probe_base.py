@@ -21,13 +21,15 @@ COMPOSED token emb[T] only (not the reference piece); for ④ from both members
 of the pair (both are composed tokens). Minimal pairs use ALL disjoint
 same-(K-1)-pieces vocab pairs — fully deterministic, no sampling.
 
-Compares side-by-side with the v0.6.4 hyper-token numbers per K
-(`results/v064.json`).
+With `--name RUN`, compares against `results/RUN.json`; legacy presets
+retain the original paper comparisons.
 """
-import sys, os, json
+import argparse
+import re, os, json
 import torch, torch.nn.functional as F
 from collections import defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
+import enc_lib
 from transformers import AutoTokenizer
 KS = (2, 3, 4)
 
@@ -39,12 +41,77 @@ PRESETS = {
     "base":         ("microsoft/Phi-3.5-mini-instruct", "encoders_v064.pt",
                      {"v0.6.4": "v064"}),
     "base_llama3B": ("meta-llama/Llama-3.2-3B-Instruct", "encoders_llama3B_v064_untied.pt",
+
+
                      {"untied HE": "llama3B_v064_untied", "tied HE": "llama3B_v064_tied"}),
 }
-RUN = sys.argv[1] if len(sys.argv) > 1 else "base"
-TOK_NAME, WEIGHTS_FILE, HYP_TAGS = PRESETS[RUN]
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Run the BPE base-table control for Zip2Zip++."
+    )
+    parser.add_argument(
+        "preset", nargs="?", help="legacy local preset (default: base)"
+    )
+    parser.add_argument(
+        "--repo-id",
+        help="Hugging Face model repo, or a local self-contained HF export",
+    )
+    parser.add_argument(
+        "--revision", default="hf", help="model revision (default: hf)"
+    )
+    parser.add_argument(
+        "--name",
+        help="shared run name; writes <name>_base and compares results/<name>.json",
+    )
+    parser.add_argument("--cache-dir")
+    parser.add_argument("--local-files-only", action="store_true")
+    args = parser.parse_args()
+    if args.repo_id and args.preset:
+        parser.error("choose either a legacy preset or --repo-id, not both")
+    return args
 
-tok = AutoTokenizer.from_pretrained(TOK_NAME)
+
+ARGS = parse_args()
+if ARGS.repo_id:
+    BUNDLE = enc_lib.load_checkpoint(
+        ARGS.repo_id,
+        revision=ARGS.revision,
+        cache_dir=ARGS.cache_dir,
+        local_files_only=ARGS.local_files_only,
+    )
+    default_name = re.sub(
+        r"[^A-Za-z0-9_.-]+", "_", os.path.basename(ARGS.repo_id.rstrip("/"))
+    )
+    shared_name = ARGS.name or default_name
+    RUN = f"{shared_name}_base"
+    HYP_TAGS = {"Zip2Zip++": shared_name}
+    REPRO_CMD = (
+        f"python probe_base.py --repo-id {ARGS.repo_id} "
+        f"--revision {ARGS.revision} --name {shared_name}"
+    )
+else:
+    RUN = ARGS.preset or "base"
+    if RUN not in PRESETS:
+        raise SystemExit(
+            f"unknown preset {RUN!r}; choose one of: {', '.join(PRESETS)}"
+        )
+    LEGACY_TOK, WEIGHTS_FILE, HYP_TAGS = PRESETS[RUN]
+    BUNDLE = enc_lib.load_checkpoint(
+        f"{HERE}/weights/{WEIGHTS_FILE}",
+        legacy_tokenizer=LEGACY_TOK,
+        legacy_vocab_size=32064 if RUN == "base" else 128256,
+    )
+    REPRO_CMD = f"python probe_base.py {RUN}"
+
+TOK_NAME = BUNDLE.tokenizer_name_or_path
+TOKENIZER_KWARGS = {
+    "cache_dir": ARGS.cache_dir,
+    "local_files_only": ARGS.local_files_only,
+}
+if BUNDLE.tokenizer_revision is not None:
+    TOKENIZER_KWARGS["revision"] = BUNDLE.tokenizer_revision
+
+tok = AutoTokenizer.from_pretrained(TOK_NAME, **TOKENIZER_KWARGS)
 vocab = tok.get_vocab()                     # str -> id
 SPECIAL = set(tok.all_special_ids)
 merges = json.loads(tok.backend_tokenizer.to_str())["model"]["merges"]
@@ -125,10 +192,9 @@ for K in KS:
     }
     print(f"K={K}: change-first pairs={len(df)}  change-last pairs={len(dl)}", flush=True)
 
-# embedding tables from the v0.6.4 checkpoint (base tables are ~frozen across runs)
-sd = torch.load(f"{HERE}/weights/{WEIGHTS_FILE}", map_location="cpu", weights_only=True)
-TABLES = {"lm_head (output space)": sd["output.weight"],
-          "tok_emb (input space)": sd["tok_embeddings.weight"]}
+# Input/output embedding tables from the selected checkpoint.
+TABLES = {"lm_head (output space)": BUNDLE.state_dict["output.weight"],
+          "tok_emb (input space)": BUNDLE.state_dict["tok_embeddings.weight"]}
 
 
 def analyze(emb):
@@ -164,7 +230,9 @@ def analyze(emb):
     return R
 
 
-res = {"n_decomp": {str(K): len(decomp[K]) for K in KS}}
+res = {"n_decomp": {str(K): len(decomp[K]) for K in KS},
+       "checkpoint": {"source": BUNDLE.source,
+                      "revision": BUNDLE.tokenizer_revision}}
 for name, emb in TABLES.items():
     res[name] = analyze(emb)
 
@@ -304,7 +372,7 @@ def md():
         o += sxs_rows(pp)
         o.append("")
     o += ["---", "",
-          f"*Repro: `python probe_base.py {RUN}`. Data: `results/{RUN}.json`. Method: see `docs/substitution_probe.md`.*"]
+          f"*Repro: `{REPRO_CMD}`. Data: `results/{RUN}.json`. Method: see `docs/substitution_probe.md`.*"]
     return "\n".join(o)
 
 
